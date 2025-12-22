@@ -16,7 +16,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 
-
 import androidx.annotation.RequiresApi;
 
 import com.nuvoton.nuisptool_android.Util.HEXTool;

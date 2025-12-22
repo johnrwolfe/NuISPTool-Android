@@ -34,9 +34,8 @@
                 android:layout_marginEnd="60dp"
                 android:layout_marginBottom="0dp"
 
-                app:srcCompat="@drawable/ic_nuisp_logo"
                 android:scaleType="centerInside"
-                />
+                app:srcCompat="@drawable/ic_nuisp_logo" />
             <!--                android:background="@drawable/ic_nuisp_logo"-->
 
         </RelativeLayout>

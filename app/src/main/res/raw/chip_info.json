@@ -8220,6 +8220,36 @@
     "note": null
   },
   {
+    "AP_size": "128*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "16*1024",
+    "DF_address": "0x00020000",
+    "LD_size": "4*1024",
+    "PDID": "0x00F250E1",
+    "name": "M253ZE3BE",
+    "note": null
+  },
+  {
+    "AP_size": "128*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "16*1024",
+    "DF_address": "0x00020000",
+    "LD_size": "4*1024",
+    "PDID": "0x00F25003",
+    "name": "M253LE3BE",
+    "note": null
+  },
+  {
+    "AP_size": "64*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "16*1024",
+    "DF_address": "0x00010000",
+    "LD_size": "4*1024",
+    "PDID": "0x00F25002",
+    "name": "M253LD3BE",
+    "note": null
+  },
+  {
     "AP_size": "64*1024",
     "DF_size": "0*1024",
     "RAM_size": "8*1024",
@@ -8507,6 +8537,95 @@
     "LD_size": "4*1024",
     "PDID": "0x00263002",
     "name": "M263KIAAE",
+    "note": null
+  },{
+  "AP_size": "2048*1024",
+  "DF_size": "0*1024",
+  "RAM_size": "1552*1024",
+  "DF_address": "0x00000000",
+  "LD_size": "8*1024",
+  "PDID": "0xA2000260",
+  "name": "M55M1H3H2LJAE",
+  "note": null
+},
+  {
+    "AP_size": "2048*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "1552*1024",
+    "DF_address": "0x00000000",
+    "LD_size": "8*1024",
+    "PDID": "0xA2000240",
+    "name": "M55M1H3K2LJAE",
+    "note": null
+  },
+  {
+    "AP_size": "2048*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "1552*1024",
+    "DF_address": "0x00000000",
+    "LD_size": "8*1024",
+    "PDID": "0xA2000220",
+    "name": "M55M1H3R2LJAE",
+    "note": null
+  },
+  {
+    "AP_size": "2048*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "1552*1024",
+    "DF_address": "0x00000000",
+    "LD_size": "8*1024",
+    "PDID": "0xA2000160",
+    "name": "M55M1H2LJAE",
+    "note": null
+  },
+  {
+    "AP_size": "2048*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "1552*1024",
+    "DF_address": "0x00000000",
+    "LD_size": "8*1024",
+    "PDID": "0xA2000140",
+    "name": "M55M1K2LJAE",
+    "note": null
+  },
+  {
+    "AP_size": "2048*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "1552*1024",
+    "DF_address": "0x00000000",
+    "LD_size": "8*1024",
+    "PDID": "0xA2000120",
+    "name": "M55M1R2LJAE",
+    "note": null
+  },
+  {
+    "AP_size": "2048*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "1552*1024",
+    "DF_address": "0x00000000",
+    "LD_size": "8*1024",
+    "PDID": "0xA2000060",
+    "name": "M5531H2LJAE",
+    "note": null
+  },
+  {
+    "AP_size": "2048*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "1552*1024",
+    "DF_address": "0x00000000",
+    "LD_size": "8*1024",
+    "PDID": "0xA2000040",
+    "name": "M5531K2LJAE",
+    "note": null
+  },
+  {
+    "AP_size": "2048*1024",
+    "DF_size": "0*1024",
+    "RAM_size": "1552*1024",
+    "DF_address": "0x00000000",
+    "LD_size": "8*1024",
+    "PDID": "0xA2000020",
+    "name": "M5531R2LJAE",
     "note": null
   }
 ]

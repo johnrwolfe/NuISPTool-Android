@@ -1,15 +1,9 @@
 package com.nuvoton.nuisptool_android.ISPTool
 
 import android.annotation.SuppressLint
-import android.hardware.usb.UsbDevice
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import androidx.annotation.RequiresApi
 import com.nuvoton.nuisptool_android.Bluetooth.BluetoothLeCmdManager
-import com.nuvoton.nuisptool_android.Bluetooth.BluetoothLeData
-import com.nuvoton.nuisptool_android.Bluetooth.BluetoothLeDataManager
-import com.nuvoton.nuisptool_android.Util.DialogTool
 import com.nuvoton.nuisptool_android.Util.Log
 import com.nuvoton.nuisptool_android.Util.HEXTool
 import com.nuvoton.nuisptool_android.WiFi.SocketCmdManager
@@ -518,7 +512,7 @@ object ISPManager {
         }
 
         //如果是UART
-        if(ISPManager.interfaceType == NulinkInterfaceType.UART){
+         if(ISPManager.interfaceType == NulinkInterfaceType.UART){
             SerialManager.sendCMD_GET_DEVICEID { readBuffer, isChecksum ->
                 callback.invoke(readBuffer,isChecksum)
             }

@@ -1,8 +1,11 @@
+@file:OptIn(InternalSerializationApi::class)
+
 package com.nuvoton.nuisptool_android.ISPTool
 
 
 import com.nuvoton.nuisptool_android.Util.Log
 import kotlinx.serialization.*
+import kotlinx.serialization.InternalSerializationApi
 
 //region: NuConfig, certain ispConfig depends on the chip
 //use json template to build new empty configs
@@ -37,5 +40,3 @@ data class SubConfigSet(val index: Int,val isEnable: Boolean, val subConfigs: Ar
 data class IspConfig(val series:String, val subConfigSets: ArrayList<SubConfigSet>) {
 
 }
-
-

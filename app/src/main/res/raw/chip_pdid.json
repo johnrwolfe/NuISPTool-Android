@@ -14364,6 +14364,27 @@
     "jsonIndex": "PROJ_M251"
   },
   {
+    "name": "M253ZE3BE",
+    "PID": "0x00F250E1",
+    "series": "PROJ_M253",
+    "note": null,
+    "jsonIndex": "PROJ_M251"
+  },
+  {
+    "name": "M253LE3BE",
+    "PID": "0x00F25003",
+    "series": "PROJ_M253",
+    "note": null,
+    "jsonIndex": "PROJ_M251"
+  },
+  {
+    "name": "M253LD3BE",
+    "PID": "0x00F25002",
+    "series": "PROJ_M253",
+    "note": null,
+    "jsonIndex": "PROJ_M251"
+  },
+  {
     "name": "M254SD2AE",
     "PID": "0x01A25411",
     "series": "PROJ_M256D",
@@ -15097,6 +15118,69 @@
     "series": "PROJ_M4521",
     "note": null,
     "jsonIndex": null
+  },
+  {
+    "name": "M55M1H3H2LJAE",
+    "PID": "0xA2000260",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
+  },
+  {
+    "name": "M55M1H3K2LJAE",
+    "PID": "0xA2000240",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
+  },
+  {
+    "name": "M55M1H3R2LJAE",
+    "PID": "0xA2000220",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
+  },
+  {
+    "name": "M55M1H2LJAE",
+    "PID": "0xA2000160",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
+  },
+  {
+    "name": "M55M1K2LJAE",
+    "PID": "0xA2000140",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
+  },
+  {
+    "name": "M55M1R2LJAE",
+    "PID": "0xA2000120",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
+  },
+  {
+    "name": "M5531H2LJAE",
+    "PID": "0xA2000060",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
+  },
+  {
+    "name": "M5531K2LJAE",
+    "PID": "0xA2000040",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
+  },
+  {
+    "name": "M5531R2LJAE",
+    "PID": "0xA2000020",
+    "series": "PROJ_M55M1",
+    "note": null,
+    "jsonIndex": "PROJ_M55M1"
   },
   {
     "name": "M071MC2AE",

@@ -2,7 +2,6 @@ package com.nuvoton.nuisptool_android
 
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
@@ -29,15 +28,18 @@ import com.nuvoton.nuisptool_android.Util.PermissionManager
 import java.util.ArrayList
 import android.widget.CompoundButton
 import androidx.activity.result.contract.ActivityResultContracts
+
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import com.afollestad.materialdialogs.list.updateListItems
 import com.nuvoton.nuisptool_android.Bluetooth.BluetoothLeCmdManager
 import com.nuvoton.nuisptool_android.Bluetooth.BluetoothLeData
 import com.nuvoton.nuisptool_android.Bluetooth.BluetoothLeDataManager
+
 import com.nuvoton.nuisptool_android.Util.DialogTool
 import com.nuvoton.nuisptool_android.WiFi.SocketCmdManager
 import com.nuvoton.nuisptool_android.WiFi.SocketManager
+import pub.devrel.easypermissions.BuildConfig
 import java.lang.Exception
 import java.net.ConnectException
 import java.net.NoRouteToHostException

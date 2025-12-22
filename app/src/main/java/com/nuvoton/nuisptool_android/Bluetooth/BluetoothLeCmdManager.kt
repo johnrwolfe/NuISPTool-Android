@@ -2,7 +2,6 @@ package com.nuvoton.nuisptool_android.Bluetooth
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.nuvoton.nuisptool_android.Bluetooth.BluetoothLeData.CharacteristicData
 import com.nuvoton.nuisptool_android.ISPTool.*
 import com.nuvoton.nuisptool_android.Util.HEXTool
 import com.nuvoton.nuisptool_android.Util.Log
@@ -14,7 +13,7 @@ object BluetoothLeCmdManager {
 //    private var _nowCMD :ISPCommands = ISPCommands.CMD_CONNECT
 //    private var _loopSend:Boolean = false
     private var _responseBuffer:ByteArray = byteArrayOf()
-    public var WRITE_BC: CharacteristicData? = null
+    public var WRITE_BC: BluetoothLeData.CharacteristicData? = null
     public var BLE_DATA: BluetoothLeData? = null
     /***
      * 收通知的地方

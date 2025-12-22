@@ -1,0 +1,240 @@
+{
+  "series": "PROJ_M55M1",
+  "subConfigSets": [
+    {
+      "index": 0,
+      "isEnable": true,
+      "subConfigs": [
+        {
+          "name": "CWDTEN[2]",
+          "description": "Watchdog Timer Hardware Enable Bit (CONFIG0[31]).\nWhen watchdog timer hardware enable function is enabled, the watchdog enable bit WDTEN (WDT_CTL[7]) and watchdog reset enable bit RSTEN (WDT_CTL[1]) is set to 1 automatically after power on. The clock source of watchdog timer is force at LIRC and LIRC cannot be disabled.\nCWDTEN[2:0] is CONFIG0[31][4][3].\n011 = WDT hardware enable function is active. WDT clock is always on except chip enters Power-down mode. When chip enter Power-down mode, WDT clock is always on if CWDTDPDEN is 0 or WDT clock is controlled by LIRCEN (CLK_PWRCTL[3]) if CWDTDPDEN is 1. Please refer to bit field description of CWDTDPDEN.\n111 = WDT hardware enable function is inactive.\nOthers = WDT hardware enable function is active. WDT clock is always on.",
+          "offset": 31,
+          "length": 1,
+          "values": "0",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = Hardware WDT enable function active (depends on CWDTEN[1:0] for full mode)",
+            "1 = Hardware WDT enable function inactive"
+          ]
+        },
+        {
+          "name": "CBOV",
+          "description": "Brown-out Voltage Selection (CONFIG0[23:21]).",
+          "offset": 21,
+          "length": 3,
+          "values": "001",
+          "options": [
+            "001",
+            "010",
+            "011",
+            "100",
+            "101",
+            "110",
+            "111"
+          ],
+          "optionDescription": [
+            "001 = 1.8V",
+            "010 = 2.0V",
+            "011 = 2.2V",
+            "100 = 2.4V",
+            "101 = 2.6V",
+            "110 = 2.8V",
+            "111 = 3.0V"
+          ]
+        },
+        {
+          "name": "CBORST",
+          "description": "Brown-out Reset Enable Bit (CONFIG0[20]).\n0 = Brown-out reset Enabled after powered on.\n1 = Brown-out reset Disabled after powered on.",
+          "offset": 20,
+          "length": 1,
+          "values": "1",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = Brown-out reset Enabled",
+            "1 = Brown-out reset Disabled"
+          ]
+        },
+        {
+          "name": "CBODEN",
+          "description": "Brown-out Detector Enable Bit (CONFIG0[19]).\n0 = Brown-out detect Enabled after powered on.\n1 = Brown-out detect Disabled after powered on.",
+          "offset": 19,
+          "length": 1,
+          "values": "1",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = Brown-out detect Enabled",
+            "1 = Brown-out detect Disabled"
+          ]
+        },
+        {
+          "name": "ICELOCK",
+          "description": "ICE Lock Bit (CONFIG0[11]).",
+          "offset": 11,
+          "length": 1,
+          "values": "1",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = ICE Disabled",
+            "1 = ICE Enabled"
+          ]
+        },
+        {
+          "name": "CBS",
+          "description": "Chip Booting Selection (CONFIG0[7]).\n0 = Direct boot from LDROM through bootloader.\n1 = Direct boot from APROM through bootloader.",
+          "offset": 7,
+          "length": 1,
+          "values": "0",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = Direct boot from LDROM",
+            "1 = Direct boot from APROM"
+          ]
+        },
+        {
+          "name": "CWDTEN[1:0]",
+          "description": "Watchdog Timer Hardware Enable Bits (CONFIG0[4:3]).\nWhen watchdog timer hardware enable function is enabled, the watchdog enable bit WDTEN (WDT_CTL[7]) and watchdog reset enable bit RSTEN (WDT_CTL[1]) is set to 1 automatically after power on. The clock source of watchdog timer is force at LIRC and LIRC cannot be disabled.\n011 = WDT hardware enable function is active. WDT clock is always on except chip enters Power-down mode. When chip enter Power-down mode, WDT clock is always on if CWDTDPDEN is 0 or WDT clock is controlled by LIRCEN (CLK_PWRCTL[3]) if CWDTDPDEN is 1.\n111 = WDT hardware enable function is inactive.\nOthers = WDT hardware enable function is active. WDT clock is always on.",
+          "offset": 3,
+          "length": 2,
+          "values": "11",
+          "options": [
+            "00",
+            "01",
+            "10",
+            "11"
+          ],
+          "optionDescription": [
+            "00 = WDT hardware enable active (always on)",
+            "01 = WDT hardware enable active (always on)",
+            "10 = WDT hardware enable active (always on)",
+            "11 = WDT hardware enable inactive"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "isEnable": false,
+      "subConfigs": []
+    },
+    {
+      "index": 2,
+      "isEnable": false,
+      "subConfigs": []
+    },
+    {
+      "index": 3,
+      "isEnable": true,
+      "subConfigs": [
+        {
+          "name": "SPIISPEN",
+          "description": "SPI ISP Mode Enable Bit (CONFIG3[12]).\n0 = Disabled.\n1 = Enabled.",
+          "offset": 12,
+          "length": 1,
+          "values": "1",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = SPI ISP Disabled",
+            "1 = SPI ISP Enabled"
+          ]
+        },
+        {
+          "name": "I2CISPEN",
+          "description": "I2C ISP Mode Enable Bit (CONFIG3[11]).\n0 = Disabled.\n1 = Enabled.",
+          "offset": 11,
+          "length": 1,
+          "values": "1",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = I2C ISP Disabled",
+            "1 = I2C ISP Enabled"
+          ]
+        },
+        {
+          "name": "CANISPEN",
+          "description": "CAN ISP Mode Enable Bit (CONFIG3[10]).\n0 = Disabled.\n1 = Enabled.",
+          "offset": 10,
+          "length": 1,
+          "values": "1",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = CAN ISP Disabled",
+            "1 = CAN ISP Enabled"
+          ]
+        },
+        {
+          "name": "USBISPDIS",
+          "description": "USB ISP Mode Disable Bit (CONFIG3[9]).\n0 = USB ISP mode Enabled.\n1 = USB ISP mode Disabled.",
+          "offset": 9,
+          "length": 1,
+          "values": "0",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = USB ISP Enabled",
+            "1 = USB ISP Disabled"
+          ]
+        },
+        {
+          "name": "UARTISPEN",
+          "description": "UART ISP Mode Enable Bit (CONFIG3[8]).\n0 = UART ISP mode Disabled.\n1 = UART ISP mode Enabled.",
+          "offset": 8,
+          "length": 1,
+          "values": "1",
+          "options": [
+            "0",
+            "1"
+          ],
+          "optionDescription": [
+            "0 = UART ISP Disabled",
+            "1 = UART ISP Enabled"
+          ]
+        },
+        {
+          "name": "UART0PSL",
+          "description": "Bootloader UART0 Multi-function Pin Select (CONFIG3[1:0]).",
+          "offset": 0,
+          "length": 2,
+          "values": "00",
+          "options": [
+            "00",
+            "01",
+            "10",
+            "11"
+          ],
+          "optionDescription": [
+            "00 = UART0_TXD (PB.9), UART0_RXD (PB.8)",
+            "01 = UART0_TXD (PA.7), UART0_RXD (PA.6)",
+            "10 = UART0_TXD (PC.12), UART0_RXD (PC.11)",
+            "11 = UART0_TXD (PB.13), UART0_RXD (PB.12)"
+          ]
+        }
+      ]
+    }
+  ]
+}

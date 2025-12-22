@@ -131,6 +131,7 @@ object SocketManager {
                     val bao = ByteArrayOutputStream()
                     val buff = ByteArray(64)
                     var bytesRead = inputStream.read(buff)
+
                     if (buff.isNotEmpty()) {
                         callback.invoke(buff)
                     }

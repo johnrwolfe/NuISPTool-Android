@@ -1,8 +1,6 @@
 package com.nuvoton.nuisptool_android.Bluetooth;
 
-import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
@@ -67,7 +65,7 @@ public class BluetoothLeDataManager {
 
     public ArrayList<BluetoothLeData> getBluetoothLeDataArray() {
         ArrayList<BluetoothLeData> bldList = new ArrayList<>();
-        for (HashMap.Entry<String, BluetoothLeData> entry : _DataHasMap.entrySet()) {
+        for (HashMap.Entry<String,BluetoothLeData> entry : _DataHasMap.entrySet()) {
 //            String key = entry.getKey();
 //            BluetoothLeData value = entry.getValue();
             bldList.add(entry.getValue());
