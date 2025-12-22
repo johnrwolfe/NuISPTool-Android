@@ -64,7 +64,16 @@ object OTGManager {
 //        filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        context.registerReceiver(broadcastReceiver, filter)
+        if (Build.VERSION.SDK_INT >= 33) {
+            context.registerReceiver(
+                broadcastReceiver,
+                filter,
+                Context.RECEIVER_NOT_EXPORTED
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            context.registerReceiver(broadcastReceiver, filter)
+        }
         _isRegisterReceiver = true
     }
 
@@ -162,7 +171,14 @@ object OTGManager {
                 val deviceVendorId: Int = _USBDevice.vendorId
                 Log.i(TAG, "vendorId: " + deviceVendorId)
 
-                USBManager.requestPermission(_USBDevice, _pendingIntent)
+                if (USBManager.hasPermission(_USBDevice)) {
+                    Log.i(TAG, "already has permission, proceed directly")
+
+                    _DeviceListener?.invoke(_USBDevice)
+                } else {
+                    Log.i(TAG, "requestPermission")
+                    USBManager.requestPermission(_USBDevice, _pendingIntent)
+                }
 
                 if (!keep) {
                     return
