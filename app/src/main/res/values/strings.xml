@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NuISPTool</string>
+    <string name="app_name">Holfuy Test Updater</string>
     <string name="cancel">Cancel</string>
     <string name="No_USB_Device_Connected">No USB Device Connected</string>
     <string name="IS_Not_ISP_Device">IS Not ISP Device</string>
