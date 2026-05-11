@@ -246,18 +246,16 @@ class MainActivity : AppCompatActivity() {
                 return@setGetUsbDeviceListener
             }
             //todo 判斷是否為可連接 PID 16128 = ISP_USB 16144 = Nulink2 , 20994 = Nulink2_me
-            if (ISPManager.interfaceType == NulinkInterfaceType.USB && _USBDevice!!.productId != 16128) {
+            val pid = _USBDevice!!.productId
+
+            if (ISPManager.interfaceType == NulinkInterfaceType.USB &&
+                pid != 0x3F00 &&
+                pid != 0xA316) {
                 this.runOnUiThread {
                     DialogTool.showAlertDialog(this, "IS Not ISP Device", true, false, null)
                 }
                 return@setGetUsbDeviceListener
-            } else if (ISPManager.interfaceType != NulinkInterfaceType.USB && !(_USBDevice!!.productId == 16144 || _USBDevice!!.productId == 20993 || _USBDevice!!.productId == 20995)) {
-                this.runOnUiThread {
-                    DialogTool.showAlertDialog(this, "IS Not NuLink2 Pro Device", true, false, null)
-                }
-                return@setGetUsbDeviceListener
             }
-
             this.doConnectDevice()
         }
         OTGManager.setGetSerialDeviceListener {
