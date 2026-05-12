@@ -339,7 +339,13 @@ class MainActivity : AppCompatActivity() {
             if (isChecksum == false) {
                 Log.i(TAG, "sendCMD_CONNECT ---- is Not USB InterFace")
                 runOnUiThread {
-                    DialogTool.showAlertDialog(this, "is Not USB InterFace", true, false, null)
+                    DialogTool.showAlertDialog(
+                        this,
+                        ISPManager.lastValidationError,
+                        true,
+                        false,
+                        null
+                    )
                 }
                 return@sendCMD_CONNECT
             }
