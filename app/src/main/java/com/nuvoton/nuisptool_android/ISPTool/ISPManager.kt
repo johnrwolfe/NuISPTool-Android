@@ -617,20 +617,41 @@ object ISPManager {
         val readBuffer = ByteArray(64)
 
         var intf = usbDevice.getInterface(connect_interface_index)
-        var readPoint = intf.getEndpoint(0)
-        var writePoint = intf.getEndpoint(0)
-
-        for (i in 0 until intf.endpointCount) {
-             val ep = intf.getEndpoint(i)
-
-             if (ep.direction == android.hardware.usb.UsbConstants.USB_DIR_IN) {
-                 readPoint = ep
-             }
-
-             if (ep.direction == android.hardware.usb.UsbConstants.USB_DIR_OUT) {
-                 writePoint = ep
-             }
+        
+        if (intf.endpointCount < 2) {
+            ISPManager.lastValidationError =
+                "endpointCount=${intf.endpointCount}"
+            callback.invoke(null, true)
+            return
         }
+
+        var readPoint: android.hardware.usb.UsbEndpoint? = null
+        var writePoint: android.hardware.usb.UsbEndpoint? = null
+        
+        for (i in 0 until intf.endpointCount) {
+        
+            val ep = intf.getEndpoint(i)
+        
+            if (ep.direction ==
+                android.hardware.usb.UsbConstants.USB_DIR_IN) {
+                readPoint = ep
+            }
+        
+            if (ep.direction ==
+                android.hardware.usb.UsbConstants.USB_DIR_OUT) {
+                writePoint = ep
+            }
+        }
+        
+        if (readPoint == null || writePoint == null) {
+        
+            ISPManager.lastValidationError =
+                "IN=$readPoint OUT=$writePoint count=${intf.endpointCount}"
+        
+            callback.invoke(null, true)
+            return
+        }
+        
         ISPManager.lastValidationError =
             "IN=${readPoint.endpointNumber} OUT=${writePoint.endpointNumber}"
             
