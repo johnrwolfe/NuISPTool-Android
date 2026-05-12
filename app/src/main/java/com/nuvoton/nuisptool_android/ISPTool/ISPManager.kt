@@ -496,7 +496,7 @@ object ISPManager {
                        String.format("%02X", it.toInt() and 0xFF)
                    }
 
-               lastValidationError = dump
+ //              lastValidationError = dump
             }
 
             var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
@@ -617,8 +617,23 @@ object ISPManager {
         val readBuffer = ByteArray(64)
 
         var intf = usbDevice.getInterface(connect_interface_index)
-        var writePoint = intf.getEndpoint(write_endpoint_index)
-        var readPoint = intf.getEndpoint(read_endpoint_index)
+        var readPoint = intf.getEndpoint(0)
+        var writePoint = intf.getEndpoint(0)
+
+        for (i in 0 until intf.endpointCount) {
+             val ep = intf.getEndpoint(i)
+
+             if (ep.direction == android.hardware.usb.UsbConstants.USB_DIR_IN) {
+                 readPoint = ep
+             }
+
+             if (ep.direction == android.hardware.usb.UsbConstants.USB_DIR_OUT) {
+                 writePoint = ep
+             }
+        }
+        ISPManager.lastValidationError =
+            "IN=${readPoint.endpointNumber} OUT=${writePoint.endpointNumber}"
+            
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
 
