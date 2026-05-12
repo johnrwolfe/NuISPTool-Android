@@ -199,13 +199,13 @@ object ISPCommandTool {
 
     fun toChecksumByReadBuffer(readBuffer:ByteArray):UInt{
 
-       var bytes = byteArrayOf(readBuffer[0])+byteArrayOf(readBuffer[1])+byteArrayOf(readBuffer[2])+byteArrayOf(readBuffer[3])
+       var bytes = byteArrayOf(readBuffer[1])+byteArrayOf(readBuffer[2])+byteArrayOf(readBuffer[3])+byteArrayOf(readBuffer[4])
 
         return HEXTool.bytesToUInt(bytes)
     }
 
     fun toPackNo(readBuffer:ByteArray):UInt{
-        val resultPackNoByteArray :  ByteArray = byteArrayOf(readBuffer[4])+byteArrayOf(readBuffer[5])+byteArrayOf(readBuffer[6])+byteArrayOf(readBuffer[7])
+        val resultPackNoByteArray :  ByteArray = byteArrayOf(readBuffer[5])+byteArrayOf(readBuffer[6])+byteArrayOf(readBuffer[7])+byteArrayOf(readBuffer[8])
         return HEXTool.bytesToUInt(resultPackNoByteArray)
     }
 
