@@ -487,9 +487,21 @@ object ISPManager {
 //        val readBuffer = this.read(usbDevice)
         thread {
             this.executeWriteRead(sendBuffer,100, callback = { readBuffer,isTimeout ->
-                var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
-                callback.invoke(readBuffer, isChecksum,isTimeout)
-            })
+
+            if (readBuffer != null) {
+
+               val dump = readBuffer
+                   .take(16)
+                   .joinToString(" ") {
+                       String.format("%02X", it.toInt() and 0xFF)
+                   }
+
+               lastValidationError = dump
+            }
+
+            var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
+            callback.invoke(readBuffer, isChecksum,isTimeout)
+         })
         }
 
     }
@@ -557,7 +569,7 @@ object ISPManager {
         val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)
 
         if (checksum != resultChecksum) {
-            lastValidationError = "Checksum:\n$checksum != $resultChecksum"
+            // lastValidationError = "Checksum:\n$checksum != $resultChecksum"
             Log.i("isChecksum_PackNo", lastValidationError)
             return false
         }
@@ -566,7 +578,7 @@ object ISPManager {
         val resultPackNo = ISPCommandTool.toPackNo(readBuffer)
 
         if (packNo.toUInt() != resultPackNo) {
-            lastValidationError = "PackNo:\n$packNo != $resultPackNo"
+            // lastValidationError = "PackNo:\n$packNo != $resultPackNo"
             Log.i("isChecksum_PackNo", lastValidationError)
             return false
         }      
