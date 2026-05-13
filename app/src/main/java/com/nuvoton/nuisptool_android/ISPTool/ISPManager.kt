@@ -661,6 +661,15 @@ object ISPManager {
             while (isRead != 64) {
 
                 cmdArray.set(1, interfaceType.value)//NULINK
+                
+                val sendDump = cmdArray
+                    .take(16)
+                    .joinToString(" ") {
+                        String.format("%02X", it.toInt() and 0xFF)
+                    }
+                
+                ISPManager.lastValidationError =
+                    "SEND:\n$sendDump"
 
                 val sendBuffer = cmdArray
                 var readBufferStrring = HEXTool.toHexString(sendBuffer)
@@ -679,10 +688,10 @@ object ISPManager {
                         String.format("%02X", it.toInt() and 0xFF)
                     }
                 
-                ISPManager.lastValidationError =
-                    "IN=${readPoint.endpointNumber} " +
-                    "OUT=${writePoint.endpointNumber}\n" +
-                    dump
+//                ISPManager.lastValidationError =
+//                    "IN=${readPoint.endpointNumber} " +
+//                    "OUT=${writePoint.endpointNumber}\n" +
+//                    dump
 
                 if(index >= timeoutIndex){
                     isRead = 64
