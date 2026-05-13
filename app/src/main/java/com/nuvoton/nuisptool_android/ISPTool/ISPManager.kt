@@ -671,7 +671,7 @@ object ISPManager {
                 ISPManager.lastValidationError =
                     "SEND:\n$sendDump"
 
-                val sendBuffer = cmdArray
+                val sendBuffer = byteArrayOf(0x00) + cmdArray
                 var readBufferStrring = HEXTool.toHexString(sendBuffer)
                 var display = HEXTool.toDisPlayString(readBufferStrring)
 
