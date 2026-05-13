@@ -673,6 +673,16 @@ object ISPManager {
                 readBufferStrring = HEXTool.toHexString(readBuffer)
                 display = HEXTool.toDisPlayString(readBufferStrring)
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
+                val dump = readBuffer
+                    .take(16)
+                    .joinToString(" ") {
+                        String.format("%02X", it.toInt() and 0xFF)
+                    }
+                
+                ISPManager.lastValidationError =
+                    "IN=${readPoint.endpointNumber} " +
+                    "OUT=${writePoint.endpointNumber}\n" +
+                    dump
 
                 if(index >= timeoutIndex){
                     isRead = 64
