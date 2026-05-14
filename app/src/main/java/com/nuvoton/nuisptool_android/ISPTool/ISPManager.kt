@@ -597,7 +597,22 @@ object ISPManager {
                 }
             }
         }else{
-            connect_interface_index = 0
+            var dump = ""
+            for (i in 0 until usbDevice.interfaceCount) {
+         
+                val intf = usbDevice.getInterface(i)
+            
+                dump +=
+                    "I$i " +
+                    "EP=${intf.endpointCount} " +
+                    "C=${intf.interfaceClass} " +
+                    "S=${intf.interfaceSubclass}\n"
+            }
+            
+            ISPManager.lastValidationError = dump
+            
+            callback.invoke(null, true)
+            return
         }
 
         var index = 0
