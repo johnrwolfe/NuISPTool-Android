@@ -607,6 +607,9 @@ object ISPManager {
         var intf = usbDevice.getInterface(connect_interface_index)
         var writePoint = intf.getEndpoint(write_endpoint_index)
         var readPoint = intf.getEndpoint(read_endpoint_index)
+        ISPManager.lastValidationError =
+              "IN type=${readPoint.type} " +
+              "OUT type=${writePoint.type}"
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
 
@@ -628,7 +631,7 @@ object ISPManager {
                         String.format("%02X", it.toInt() and 0xFF)
                     }
                 
-                ISPManager.lastValidationError = "write=$isWrite read=$isRead\n$dump"
+//                ISPManager.lastValidationError = "write=$isWrite read=$isRead\n$dump"
                 readBufferStrring = HEXTool.toHexString(readBuffer)
                 display = HEXTool.toDisPlayString(readBufferStrring)
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
