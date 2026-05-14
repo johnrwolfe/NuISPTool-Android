@@ -557,7 +557,7 @@ object ISPManager {
         val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)
 
         if (checksum != resultChecksum) {
-            lastValidationError = "Checksum:\n$checksum != $resultChecksum"
+ //           lastValidationError = "Checksum:\n$checksum != $resultChecksum"
             Log.i("isChecksum_PackNo", lastValidationError)
             return false
         }
@@ -619,6 +619,7 @@ object ISPManager {
                 var display = HEXTool.toDisPlayString(readBufferStrring)
 
                 val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
+                ISPManager.lastValidationError = "write=$isWrite"
                 Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
 
                 isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)
