@@ -611,7 +611,7 @@ object ISPManager {
             
             ISPManager.lastValidationError = dump
             
-            callback.invoke(null, true)
+            callback.invoke(ByteArray(64), false)
             return
         }
 
