@@ -618,7 +618,15 @@ object ISPManager {
                 var readBufferStrring = HEXTool.toHexString(sendBuffer)
                 var display = HEXTool.toDisPlayString(readBufferStrring)
 
-                val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
+                val isWrite = connection.controlTransfer(
+                    0x21,   // HOST_TO_DEVICE | CLASS | INTERFACE
+                    0x09,   // SET_REPORT
+                    0x0200, // Output report, report ID 0
+                    connect_interface_index,
+                    sendBuffer,
+                    sendBuffer.size,
+                    100
+                )
                 Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
 
                 isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)
