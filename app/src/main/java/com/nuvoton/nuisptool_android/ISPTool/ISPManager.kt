@@ -610,7 +610,7 @@ object ISPManager {
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
 
-            while (isRead != 65) {
+            while (isRead != 64) {
 
                 cmdArray.set(1, interfaceType.value)//NULINK
 
