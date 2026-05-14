@@ -622,7 +622,12 @@ object ISPManager {
                 Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
 
                 isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)
-                ISPManager.lastValidationError = "read=$isRead"
+                val dump = readBuffer
+                    .take(16)
+                    .joinToString(" ") {
+                        String.format("%02X", it.toInt() and 0xFF)
+                    }
+                ISPManager.lastValidationError = "read=$isRead\n$dump"
                 readBufferStrring = HEXTool.toHexString(readBuffer)
                 display = HEXTool.toDisPlayString(readBufferStrring)
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
