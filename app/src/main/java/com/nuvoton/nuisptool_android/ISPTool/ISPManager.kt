@@ -612,17 +612,23 @@ object ISPManager {
 
             while (isRead != 64) {
 
-                cmdArray.set(1, interfaceType.value)//NULINK
+ //               cmdArray.set(1, interfaceType.value)//NULINK
 
                 val sendBuffer = cmdArray
                 var readBufferStrring = HEXTool.toHexString(sendBuffer)
                 var display = HEXTool.toDisPlayString(readBufferStrring)
 
                 val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
-                ISPManager.lastValidationError = "write=$isWrite"
                 Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
 
                 isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)
+                val dump = readBuffer
+                    .take(16)
+                    .joinToString(" ") {
+                        String.format("%02X", it.toInt() and 0xFF)
+                    }
+                
+                ISPManager.lastValidationError = "write=$isWrite read=$isRead\n$dump"
                 readBufferStrring = HEXTool.toHexString(readBuffer)
                 display = HEXTool.toDisPlayString(readBufferStrring)
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
