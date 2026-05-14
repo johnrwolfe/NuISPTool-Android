@@ -597,27 +597,12 @@ object ISPManager {
                 }
             }
         }else{
-            var dump = ""
-            for (i in 0 until usbDevice.interfaceCount) {
-         
-                val intf = usbDevice.getInterface(i)
-            
-                dump +=
-                    "I$i " +
-                    "EP=${intf.endpointCount} " +
-                    "C=${intf.interfaceClass} " +
-                    "S=${intf.interfaceSubclass}\n"
-            }
-            
-            ISPManager.lastValidationError = dump
-            
-            callback.invoke(ByteArray(64), false)
-            return
+            connect_interface_index = 0
         }
 
         var index = 0
         var isRead = -1
-        val readBuffer = ByteArray(64)
+        val readBuffer = ByteArray(65)
 
         var intf = usbDevice.getInterface(connect_interface_index)
         var writePoint = intf.getEndpoint(write_endpoint_index)
@@ -625,11 +610,11 @@ object ISPManager {
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
 
-            while (isRead != 64) {
+            while (isRead != 65) {
 
                 cmdArray.set(1, interfaceType.value)//NULINK
 
-                val sendBuffer = cmdArray
+                val sendBuffer = byteArrayOf(0x00) + cmdArray
                 var readBufferStrring = HEXTool.toHexString(sendBuffer)
                 var display = HEXTool.toDisPlayString(readBufferStrring)
 
@@ -648,7 +633,6 @@ object ISPManager {
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
 
                 if(index >= timeoutIndex){
-                    isRead = 64
                     callback.invoke(null,true)
                     return
                 }else{
