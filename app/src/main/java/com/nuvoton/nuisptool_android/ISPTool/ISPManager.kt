@@ -640,7 +640,24 @@ object ISPManager {
                 
                 Log.i("ISPManager", "index=" + index)
             }
-
+            // Drain any remaining queued responses to the succession of CONNECT requests
+            // sent while trying to nudge the station into ISP mode
+            val drain = ByteArray(64)
+            
+            for (n in 1..5) {
+                val drained = connection.bulkTransfer(
+                    readPoint,
+                    drain,
+                    drain.size,
+                    20   // short timeout
+                )
+            
+                Log.i("ISPManager", "postConnectDrain[$n]=$drained")
+            
+                if (drained <= 0) {
+                    break
+                }
+            }
             callback.invoke(readBuffer,false)
 
     }
