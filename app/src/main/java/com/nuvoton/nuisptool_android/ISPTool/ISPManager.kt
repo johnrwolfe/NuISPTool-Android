@@ -607,11 +607,16 @@ object ISPManager {
         var intf = usbDevice.getInterface(connect_interface_index)
         var writePoint = intf.getEndpoint(write_endpoint_index)
         var readPoint = intf.getEndpoint(read_endpoint_index)
-        ISPManager.lastValidationError =
-            "EP0 dir=${intf.getEndpoint(0).direction}\n" +
-            "EP1 dir=${intf.getEndpoint(1).direction}"
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
+        val flushBuffer = ByteArray(64)
+        val flushed = connection.bulkTransfer(
+            readPoint,
+            flushBuffer,
+            flushBuffer.size,
+            10
+        )
+        Log.i("ISPManager", "flushRead=" + flushed)
 
             while (isRead != 64) {
 
@@ -631,7 +636,7 @@ object ISPManager {
                         String.format("%02X", it.toInt() and 0xFF)
                     }
                 
-  //              ISPManager.lastValidationError = "write=$isWrite read=$isRead\n$dump"
+                ISPManager.lastValidationError = "write=$isWrite read=$isRead\n$dump"
                 readBufferStrring = HEXTool.toHexString(readBuffer)
                 display = HEXTool.toDisPlayString(readBufferStrring)
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
