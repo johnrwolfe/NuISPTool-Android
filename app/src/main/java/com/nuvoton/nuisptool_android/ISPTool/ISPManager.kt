@@ -610,9 +610,6 @@ object ISPManager {
         val flushBuffer = ByteArray(64)
         
             while (index < 20) {
-
- //               cmdArray.set(1, interfaceType.value)//NULINK
-
                 packetNumber = (0x00000001).toUInt()
                 val sendBuffer = ISPCommandTool.toCMD(ISPCommands.CMD_CONNECT, packetNumber)
                 var readBufferStrring = HEXTool.toHexString(sendBuffer)
