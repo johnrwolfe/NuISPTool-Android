@@ -620,6 +620,8 @@ object ISPManager {
  //               var display = HEXTool.toDisPlayString(readBufferStrring)
                 packetNumber = (0x00000001).toUInt()
                 val sendBuffer = ISPCommandTool.toCMD(ISPCommands.CMD_CONNECT, packetNumber)
+                var readBufferStrring = HEXTool.toHexString(sendBuffer)
+                var display = HEXTool.toDisPlayString(readBufferStrring)
                 val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
                 Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
 
