@@ -336,19 +336,25 @@ class MainActivity : AppCompatActivity() {
                 return@sendCMD_CONNECT
             }
 
-            if (isChecksum == false) {
-                Log.i(TAG, "sendCMD_CONNECT ---- is Not USB InterFace")
-                runOnUiThread {
-                    DialogTool.showAlertDialog(
-                        this,
-                        ISPManager.lastValidationError,
-                        true,
-                        false,
-                        null
-                    )
-                }
-                return@sendCMD_CONNECT
-            }
+           if (isChecksum == false) {
+          
+              Log.i(
+                  TAG,
+                  "sendCMD_CONNECT ---- device did not enter ISP mode"
+              )
+          
+              runOnUiThread {
+                  DialogTool.showAlertDialog(
+                      this,
+                      "Device did not enter ISP mode.",
+                      true,
+                      false,
+                      null
+                  )
+              }
+          
+              return@sendCMD_CONNECT
+          }
 
 //            ISPManager.sendCMD_READ_CONFIG(_USBDevice!!, callback = {byteArray ->
 //                if (isChecksum == false || byteArray == null) {

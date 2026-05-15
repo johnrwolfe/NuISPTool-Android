@@ -36,7 +36,6 @@ object ISPManager {
     private val isSearchLoop = false
 
     public var packetNumber: UInt = (0x00000005).toUInt()
-    public var lastValidationError: String = ""
     public var interfaceType : NulinkInterfaceType = NulinkInterfaceType.USB
 
     private var _readListener: ((ByteArray) -> Unit)? = null
@@ -552,28 +551,34 @@ object ISPManager {
             return true
         }
 
-        //checksum
+        // checksum
         val checksum = ISPCommandTool.toChecksumBySendBuffer(sendBuffer)
         val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)
-
+        
         if (checksum != resultChecksum) {
-            Log.i("isChecksum_PackNo", lastValidationError)
+            Log.i(
+                "isChecksum_PackNo",
+                "checksum $checksum != resultChecksum $resultChecksum"
+            )
             return false
         }
-        //checkPackNo
+        
+        // packet number
         val packNo = packetNumber + (0x00000001).toUInt()
         val resultPackNo = ISPCommandTool.toPackNo(readBuffer)
-
-        if (packNo.toUInt() != resultPackNo) {
-            Log.i("isChecksum_PackNo", lastValidationError)
+        
+        if (packNo != resultPackNo) {
+            Log.i(
+                "isChecksum_PackNo",
+                "packNo $packNo != resultPackNo $resultPackNo"
+            )
             return false
-        }      
+        }
         packetNumber = resultPackNo
         Log.i(
             "isChecksum_PackNo",
             "packNo $packNo == resultPackNo $resultPackNo ,checksum $checksum == resultChecksum $resultChecksum"
         )
-        lastValidationError = "Validation OK"
         return true
     }
 
