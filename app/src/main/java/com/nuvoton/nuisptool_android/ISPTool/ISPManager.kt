@@ -631,7 +631,7 @@ object ISPManager {
                         String.format("%02X", it.toInt() and 0xFF)
                     }
                 
-                ISPManager.lastValidationError = "write=$isWrite read=$isRead\n$dump"
+  //              ISPManager.lastValidationError = "write=$isWrite read=$isRead\n$dump"
                 readBufferStrring = HEXTool.toHexString(readBuffer)
                 display = HEXTool.toDisPlayString(readBufferStrring)
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
