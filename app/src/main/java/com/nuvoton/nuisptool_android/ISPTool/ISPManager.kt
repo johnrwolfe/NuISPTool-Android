@@ -574,7 +574,7 @@ object ISPManager {
             )
             return false
         }
-        packetNumber = resultPackNo
+        packetNumber = packNo + (0x00000001).toUInt()
         Log.i(
             "isChecksum_PackNo",
             "packNo $packNo == resultPackNo $resultPackNo ,checksum $checksum == resultChecksum $resultChecksum"
