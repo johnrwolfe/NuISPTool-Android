@@ -610,14 +610,20 @@ object ISPManager {
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
         val flushBuffer = ByteArray(64)
-        val flushed = connection.bulkTransfer(
-            readPoint,
-            flushBuffer,
-            flushBuffer.size,
-            10
-        )
-        Log.i("ISPManager", "flushRead=" + flushed)
-
+        
+        for (i in 1..10) {
+        
+            val flushed = connection.bulkTransfer(
+                readPoint,
+                flushBuffer,
+                flushBuffer.size,
+                100
+            )
+        
+            Log.i("ISPManager", "flush[$i]=$flushed")
+        
+            Thread.sleep(200)
+        }
             while (isRead != 64) {
 
  //               cmdArray.set(1, interfaceType.value)//NULINK
