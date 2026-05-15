@@ -557,7 +557,7 @@ object ISPManager {
         val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)
 
         if (checksum != resultChecksum) {
- //           lastValidationError = "Checksum:\n$checksum != $resultChecksum"
+            lastValidationError = "Checksum:\n$checksum != $resultChecksum"
             Log.i("isChecksum_PackNo", lastValidationError)
             return false
         }
@@ -570,7 +570,7 @@ object ISPManager {
             Log.i("isChecksum_PackNo", lastValidationError)
             return false
         }      
-        packetNumber = packNo + (0x00000001).toUInt()
+//        packetNumber = packNo + (0x00000001).toUInt()
         Log.i(
             "isChecksum_PackNo",
             "packNo $packNo == resultPackNo $resultPackNo ,checksum $checksum == resultChecksum $resultChecksum"
