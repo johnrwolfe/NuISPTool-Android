@@ -622,7 +622,7 @@ object ISPManager {
                     0x21,   // HOST_TO_DEVICE | CLASS | INTERFACE
                     0x09,   // SET_REPORT
                     0x0200, // Output report, report ID 0
-                    connect_interface_index,
+                    intf.id,
                     sendBuffer,
                     sendBuffer.size,
                     100
