@@ -627,7 +627,8 @@ object ISPManager {
                 val allZero = readBuffer.all { it == 0.toByte() }
                 if (!allZero) {
                     Log.i("ISPManager", "Holfuy entered ISP mode")
-                    break
+                    callback.invoke(readBuffer, false)
+                    return
                 }
 
                 readBufferStrring = HEXTool.toHexString(readBuffer)
