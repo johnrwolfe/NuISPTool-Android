@@ -557,7 +557,6 @@ object ISPManager {
         val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)
 
         if (checksum != resultChecksum) {
-//            lastValidationError = "Checksum:\n$checksum != $resultChecksum"
             Log.i("isChecksum_PackNo", lastValidationError)
             return false
         }
@@ -566,11 +565,10 @@ object ISPManager {
         val resultPackNo = ISPCommandTool.toPackNo(readBuffer)
 
         if (packNo.toUInt() != resultPackNo) {
-            lastValidationError = "PackNo:\n$packNo != $resultPackNo"
             Log.i("isChecksum_PackNo", lastValidationError)
             return false
         }      
-//        packetNumber = packNo + (0x00000001).toUInt()
+        packetNumber = packNo + (0x00000001).toUInt()
         Log.i(
             "isChecksum_PackNo",
             "packNo $packNo == resultPackNo $resultPackNo ,checksum $checksum == resultChecksum $resultChecksum"
@@ -615,9 +613,6 @@ object ISPManager {
 
  //               cmdArray.set(1, interfaceType.value)//NULINK
 
- //               val sendBuffer = cmdArray
- //               var readBufferStrring = HEXTool.toHexString(sendBuffer)
- //               var display = HEXTool.toDisPlayString(readBufferStrring)
                 packetNumber = (0x00000001).toUInt()
                 val sendBuffer = ISPCommandTool.toCMD(ISPCommands.CMD_CONNECT, packetNumber)
                 var readBufferStrring = HEXTool.toHexString(sendBuffer)
@@ -626,32 +621,21 @@ object ISPManager {
                 Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
 
                 isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)
+                
                 val allZero = readBuffer.all { it == 0.toByte() }
                 if (!allZero) {
+                    Log.i("ISPManager", "Holfuy entered ISP mode")
                     break
-                }else{
-                    Thread.sleep(200)
-                    index++
                 }
-                val dump = readBuffer
-                    .take(16)
-                    .joinToString(" ") {
-                        String.format("%02X", it.toInt() and 0xFF)
-                    }
-                
-//                ISPManager.lastValidationError = "write=$isWrite read=$isRead\n$dump"
+
                 readBufferStrring = HEXTool.toHexString(readBuffer)
                 display = HEXTool.toDisPlayString(readBufferStrring)
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
 
-                if(index >= timeoutIndex){
-                    isRead = 64
-                    callback.invoke(null,true)
-                    return
-                }else{
-                    index = index + 1
-                    Log.i("ISPManager", "index=" + index )
-                }
+                Thread.sleep(200)
+                index++
+                
+                Log.i("ISPManager", "index=" + index)
             }
 
             callback.invoke(readBuffer,false)
