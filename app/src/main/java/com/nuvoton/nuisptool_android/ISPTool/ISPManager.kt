@@ -616,8 +616,8 @@ object ISPManager {
  //               cmdArray.set(1, interfaceType.value)//NULINK
 
  //               val sendBuffer = cmdArray
-                var readBufferStrring = HEXTool.toHexString(sendBuffer)
-                var display = HEXTool.toDisPlayString(readBufferStrring)
+ //               var readBufferStrring = HEXTool.toHexString(sendBuffer)
+ //               var display = HEXTool.toDisPlayString(readBufferStrring)
                 packetNumber = (0x00000001).toUInt()
                 val sendBuffer = ISPCommandTool.toCMD(ISPCommands.CMD_CONNECT, packetNumber)
                 val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
