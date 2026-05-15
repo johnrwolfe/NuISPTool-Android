@@ -557,7 +557,7 @@ object ISPManager {
         val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)
 
         if (checksum != resultChecksum) {
-            lastValidationError = "Checksum:\n$checksum != $resultChecksum"
+//            lastValidationError = "Checksum:\n$checksum != $resultChecksum"
             Log.i("isChecksum_PackNo", lastValidationError)
             return false
         }
@@ -607,6 +607,9 @@ object ISPManager {
         var intf = usbDevice.getInterface(connect_interface_index)
         var writePoint = intf.getEndpoint(write_endpoint_index)
         var readPoint = intf.getEndpoint(read_endpoint_index)
+        ISPManager.lastValidationError =
+            "EP0 dir=${intf.getEndpoint(0).direction}\n" +
+            "EP1 dir=${intf.getEndpoint(1).direction}"
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
 
