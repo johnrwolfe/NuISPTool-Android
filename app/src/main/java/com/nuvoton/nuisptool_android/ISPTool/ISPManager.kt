@@ -518,14 +518,24 @@ object ISPManager {
             }
             return
         }
-
         val cmd = ISPCommands.CMD_GET_DEVICEID
         val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-        this.write( sendBuffer)
-        val readBuffer = this.read()
-        var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
-
-        callback.invoke(readBuffer,isChecksum)
+        
+        thread {
+            this.executeWriteRead(sendBuffer, 1,
+                callback = { readBuffer, isTimeout ->
+                    val isChecksum =
+                        this.isChecksum_PackNo(
+                            sendBuffer,
+                            readBuffer
+                        )
+                    callback.invoke(
+                        readBuffer,
+                        isChecksum
+                    )
+                }
+            )
+        }
     }
 
 //    private fun sendCMD(usbDevice: UsbDevice, cmd: ISPCommands) {
@@ -614,8 +624,13 @@ object ISPManager {
         connection.claimInterface(intf,forceClaim)
         
             while (index < 20) {
-                packetNumber = (0x00000001).toUInt()
-                val sendBuffer = ISPCommandTool.toCMD(ISPCommands.CMD_CONNECT, packetNumber)
+            val sendBuffer =
+                if (cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte()) {            
+                    packetNumber = (0x00000001).toUInt()            
+                    ISPCommandTool.toCMD(ISPCommands.CMD_CONNECT, packetNumber)            
+                } else {            
+                    cmdArray            
+                }
                 var readBufferStrring = HEXTool.toHexString(sendBuffer)
                 var display = HEXTool.toDisPlayString(readBufferStrring)
                 val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
