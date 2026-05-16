@@ -612,7 +612,6 @@ object ISPManager {
         var readPoint = intf.getEndpoint(read_endpoint_index)
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
-        val flushBuffer = ByteArray(64)
         
             while (index < 20) {
                 packetNumber = (0x00000001).toUInt()
@@ -624,13 +623,24 @@ object ISPManager {
 
                 isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)
                 
-                val allZero = readBuffer.all { it == 0.toByte() }
-                if (!allZero) {
+                val allZero = (isRead == 64) && readBuffer.all { it == 0.toByte() }
+                if (!allZero) {              
                     Log.i("ISPManager", "Holfuy entered ISP mode")
+                
+                    // Drain any queued ACKs from earlier CONNECT attempts
+                    val drain = ByteArray(64)                
+                    for (n in 1..5) {                
+                        val drained = connection.bulkTransfer(readPoint, drain, drain.size, 20)                
+                        Log.i("ISPManager", "postConnectDrain[$n]=$drained")
+                        if (drained <= 0) {
+                            break
+                        }                
+                        val drainDisplay = HEXTool.toDisPlayString(HEXTool.toHexString(drain))                
+                        Log.i("ISPManager", "postConnectDrain[$n] data: $drainDisplay")
+                    }
                     callback.invoke(readBuffer, false)
                     return
                 }
-
                 readBufferStrring = HEXTool.toHexString(readBuffer)
                 display = HEXTool.toDisPlayString(readBufferStrring)
                 Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
@@ -640,26 +650,7 @@ object ISPManager {
                 
                 Log.i("ISPManager", "index=" + index)
             }
-            // Drain any remaining queued responses to the succession of CONNECT requests
-            // sent while trying to nudge the station into ISP mode
-            val drain = ByteArray(64)
-            
-            for (n in 1..5) {
-                val drained = connection.bulkTransfer(
-                    readPoint,
-                    drain,
-                    drain.size,
-                    20   // short timeout
-                )
-            
-                Log.i("ISPManager", "postConnectDrain[$n]=$drained")
-            
-                if (drained <= 0) {
-                    break
-                }
-            }
             callback.invoke(readBuffer,false)
-
     }
 
     @SuppressLint("NewApi")
