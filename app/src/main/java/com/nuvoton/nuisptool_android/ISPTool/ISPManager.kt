@@ -628,15 +628,17 @@ object ISPManager {
                     Log.i("ISPManager", "Holfuy entered ISP mode")
                 
                     // Drain any queued ACKs from earlier CONNECT attempts
-                    val drain = ByteArray(64)                
-                    for (n in 1..5) {                
-                        val drained = connection.bulkTransfer(readPoint, drain, drain.size, 20)                
+                    var n = 1
+                    while (true) {
+                        val drain = ByteArray(64)
+                        val drained = connection.bulkTransfer(readPoint, drain, drain.size, 20)
                         Log.i("ISPManager", "postConnectDrain[$n]=$drained")
                         if (drained <= 0) {
                             break
-                        }                
-                        val drainDisplay = HEXTool.toDisPlayString(HEXTool.toHexString(drain))                
+                        }
+                        val drainDisplay = HEXTool.toDisPlayString(HEXTool.toHexString(drain))
                         Log.i("ISPManager", "postConnectDrain[$n] data: $drainDisplay")
+                        n++
                     }
                     callback.invoke(readBuffer, false)
                     return
