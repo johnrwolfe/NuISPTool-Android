@@ -482,8 +482,6 @@ object ISPManager {
         this.packetNumber = (0x00000001).toUInt()
         val cmd = ISPCommands.CMD_CONNECT
         val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-//        this.write(usbDevice, sendBuffer)
-//        val readBuffer = this.read(usbDevice)
         thread {
             this.executeWriteRead(sendBuffer,100, callback = { readBuffer,isTimeout ->
                 var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
