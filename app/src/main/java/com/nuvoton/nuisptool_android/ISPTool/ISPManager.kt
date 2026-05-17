@@ -636,11 +636,15 @@ object ISPManager {
                 val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
                 Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
 
-                isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)
-                
-                val allZero = (isRead == 64) && readBuffer.all { it == 0.toByte() }
-                if (!allZero) {              
+                isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)               
+                val isConnect = cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte()                
+                val allZero = (isRead == 64) && readBuffer.all { it == 0.toByte() }                
+                if (isConnect && !allZero) {
                     Log.i("ISPManager", "Holfuy entered ISP mode")
+                    callback.invoke(readBuffer, false)
+                    return
+                }                
+                if (!isConnect) {
                     callback.invoke(readBuffer, false)
                     return
                 }
