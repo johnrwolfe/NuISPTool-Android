@@ -620,6 +620,7 @@ object ISPManager {
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
         val sendBuffer = cmdArray
+        sendBuffer.set(1, interfaceType.value)
         // Make a finite number of attempts to send a command and read a valid response.
         // For CONNECT, continue sending CONNECT commands until a valid, non-zero response
         //   is received, indicating the Holfuy device has entered ISP mode.
@@ -633,20 +634,15 @@ object ISPManager {
             Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
             isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)               
             val isConnect = cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte()   
-            val expectedPackNo =
-                if (!isConnect)
-                   packetNumber + (0x00000001).toUInt()
-                else
-                   0.toUInt()
+            val expectedPackNo = packetNumber + (0x00000001).toUInt()
             val resultPackNo =
-                if (!isConnect && isRead == 64)
-                   ISPCommandTool.toPackNo(readBuffer)
+                if (isRead == 64)
+                    ISPCommandTool.toPackNo(readBuffer)
                 else
-                   0.toUInt()
+                    0.toUInt()          
             if (!isConnect && (isRead == 64) && (resultPackNo != expectedPackNo)) {
                 Log.i("ISPManager", "Ignoring stale packet $resultPackNo, expected $expectedPackNo")
             } else if (!isConnect && isRead == 64) {
-                connection.close()
                 callback.invoke(readBuffer, false)
                 return
             }
@@ -656,7 +652,6 @@ object ISPManager {
             Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)             
             if (isConnect && !allZero) {
                 Log.i("ISPManager", "Holfuy entered ISP mode")
-                connection.close()
                 callback.invoke(readBuffer, false)
                 return
             }             
@@ -664,7 +659,6 @@ object ISPManager {
             index++        
             Log.i("ISPManager", "index=" + index)
         }
-        connection.close()
         callback.invoke(readBuffer,false)
     }
 
