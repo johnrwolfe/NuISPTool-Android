@@ -633,7 +633,6 @@ object ISPManager {
             var display = HEXTool.toDisPlayString(readBufferStrring)
             val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
             Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
-
             isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)               
             val isConnect = cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte()   
             val expectedPackNo = packetNumber + (0x00000001).toUInt()
@@ -657,29 +656,6 @@ object ISPManager {
                 callback.invoke(readBuffer, false)
                 return
             }             
-            var readBufferStrring = HEXTool.toHexString(sendBuffer)
-            var display = HEXTool.toDisPlayString(readBufferStrring)
-            val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
-            Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
-            isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)               
-            val isConnect = cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte()   
-            val expectedPackNo = packetNumber + (0x00000001).toUInt()
-            val resultPackNo = ISPCommandTool.toPackNo(readBuffer)    
-            if (!isConnect && (isRead == 64) && (resultPackNo != expectedPackNo)) {
-                Log.i("ISPManager", "Ignoring stale packet $resultPackNo, expected $expectedPackNo")
-            } else if (!isConnect) {
-                callback.invoke(readBuffer, false)
-                return
-            }
-            readBufferStrring = HEXTool.toHexString(readBuffer)
-            display = HEXTool.toDisPlayString(readBufferStrring)
-            Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)                  
-            val allZero = (isRead == 64) && readBuffer.all { it == 0.toByte() }                
-            if (isConnect && !allZero) {
-                Log.i("ISPManager", "Holfuy entered ISP mode")
-                callback.invoke(readBuffer, false)
-                return
-            }                
             Thread.sleep(200)
             index++        
             Log.i("ISPManager", "index=" + index)
