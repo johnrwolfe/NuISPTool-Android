@@ -621,7 +621,6 @@ object ISPManager {
         var readPoint = intf.getEndpoint(read_endpoint_index)
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
-<<<<<<< HEAD
         val sendBuffer = cmdArray
         // Make a finite number of attempts to send a command and read a valid response.
         // For CONNECT, continue sending CONNECT commands until a valid, non-zero response
@@ -648,18 +647,7 @@ object ISPManager {
             } else if (!isConnect && isRead == 64) {
                 callback.invoke(readBuffer, false)
                 return
-=======
-        
-        while (index < 20) {
-        val sendBuffer =
-            if (cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte()) {            
-                packetNumber = (0x00000001).toUInt()            
-                ISPCommandTool.toCMD(ISPCommands.CMD_CONNECT, packetNumber)            
-            } else {            
-                cmdArray            
->>>>>>> branch 'feature/holfuy-connect-soft-switch' of git@github.com:johnrwolfe/NuISPTool-Android.git
             }
-<<<<<<< HEAD
             val allZero = (isRead == 64) && readBuffer.all { it == 0.toByte() }   
             readBufferStrring = HEXTool.toHexString(readBuffer)
             display = HEXTool.toDisPlayString(readBufferStrring)
@@ -669,12 +657,10 @@ object ISPManager {
                 callback.invoke(readBuffer, false)
                 return
             }             
-=======
             var readBufferStrring = HEXTool.toHexString(sendBuffer)
             var display = HEXTool.toDisPlayString(readBufferStrring)
             val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
             Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
-
             isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)               
             val isConnect = cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte()   
             val expectedPackNo = packetNumber + (0x00000001).toUInt()
@@ -684,21 +670,18 @@ object ISPManager {
             } else if (!isConnect) {
                 callback.invoke(readBuffer, false)
                 return
-            }         
+            }
+            readBufferStrring = HEXTool.toHexString(readBuffer)
+            display = HEXTool.toDisPlayString(readBufferStrring)
+            Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)                  
             val allZero = (isRead == 64) && readBuffer.all { it == 0.toByte() }                
             if (isConnect && !allZero) {
                 Log.i("ISPManager", "Holfuy entered ISP mode")
                 callback.invoke(readBuffer, false)
                 return
             }                
-            readBufferStrring = HEXTool.toHexString(readBuffer)
-            display = HEXTool.toDisPlayString(readBufferStrring)
-            Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)
->>>>>>> branch 'feature/holfuy-connect-soft-switch' of git@github.com:johnrwolfe/NuISPTool-Android.git
-
             Thread.sleep(200)
-            index++
-            
+            index++        
             Log.i("ISPManager", "index=" + index)
         }
         callback.invoke(readBuffer,false)
