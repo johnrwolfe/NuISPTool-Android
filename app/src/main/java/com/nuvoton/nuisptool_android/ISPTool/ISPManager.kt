@@ -325,12 +325,16 @@ object ISPManager {
         }
 
         val cmd = ISPCommands.CMD_READ_CONFIG
-        val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-        this.write( sendBuffer)
-        val readBuffer = this.read()
-        var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
-
-        callback.invoke(readBuffer)
+        val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)        
+        Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber")
+        this.executeWriteRead(
+            sendBuffer,
+            1,
+            callback = { readBuffer, isTimeout ->      
+                this.isChecksum_PackNo(sendBuffer,readBuffer)
+                callback.invoke(readBuffer)
+            }
+        )
     }
 
     fun sendCMD_GET_FWVER(callback: ((ByteArray?, Boolean) -> Unit)) {
@@ -360,12 +364,20 @@ object ISPManager {
         }
 
         val cmd = ISPCommands.CMD_GET_FWVER
-        val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-        this.write( sendBuffer)
-        val readBuffer = this.read()
-        var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
-
-        callback.invoke(readBuffer, isChecksum)
+        val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)      
+        Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber")
+        this.executeWriteRead(
+            sendBuffer,
+            1,
+            callback = { readBuffer, isTimeout ->      
+                val isChecksum =
+                    this.isChecksum_PackNo(
+                        sendBuffer,
+                        readBuffer
+                    )
+                callback.invoke(readBuffer, isChecksum)
+            }
+        )
     }
 
     fun sendCMD_RUN_APROM( callback: ((Boolean) -> Unit)) {
@@ -482,13 +494,11 @@ object ISPManager {
         this.packetNumber = (0x00000001).toUInt()
         val cmd = ISPCommands.CMD_CONNECT
         val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-        thread {
-            this.executeWriteRead(sendBuffer,100, callback = { readBuffer,isTimeout ->
-                var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
-                callback.invoke(readBuffer, isChecksum,isTimeout)
-            })
-        }
-
+        Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber")
+        this.executeWriteRead(sendBuffer,100, callback = { readBuffer,isTimeout ->
+            var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
+            callback.invoke(readBuffer, isChecksum,isTimeout)
+        })
     }
 
     fun sendCMD_GET_DEVICEID( callback: ((ByteArray?, Boolean) -> Unit)) {
@@ -517,23 +527,14 @@ object ISPManager {
             return
         }
         val cmd = ISPCommands.CMD_GET_DEVICEID
-        val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-        
-        thread {
-            this.executeWriteRead(sendBuffer, 1,
-                callback = { readBuffer, isTimeout ->
-                    val isChecksum =
-                        this.isChecksum_PackNo(
-                            sendBuffer,
-                            readBuffer
-                        )
-                    callback.invoke(
-                        readBuffer,
-                        isChecksum
-                    )
-                }
-            )
-        }
+        val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber) 
+        Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber")  
+        this.executeWriteRead(sendBuffer, 1,
+            callback = { readBuffer, isTimeout ->
+                val isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
+                callback.invoke(readBuffer, isChecksum)
+            }
+        ) 
     }
 
 //    private fun sendCMD(usbDevice: UsbDevice, cmd: ISPCommands) {
@@ -619,8 +620,8 @@ object ISPManager {
         var readPoint = intf.getEndpoint(read_endpoint_index)
         var connection = OTGManager.USBManager.openDevice(usbDevice)
         connection.claimInterface(intf,forceClaim)
-        val sendBuffer = cmdArray
-        sendBuffer.set(1, interfaceType.value)
+        val sendBuffer = cmdArray.clone()
+        sendBuffer[1] = interfaceType.value
         // Make a finite number of attempts to send a command and read a valid response.
         // For CONNECT, continue sending CONNECT commands until a valid, non-zero response
         //   is received, indicating the Holfuy device has entered ISP mode.
@@ -632,21 +633,26 @@ object ISPManager {
             var display = HEXTool.toDisPlayString(readBufferStrring)
             val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
             Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
+            readBuffer.fill(0)
             isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)               
-            val isConnect = cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte()   
+            val isConnect = cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte() 
+            Log.i("ISPManager", "cmd=${cmdArray[0].toUByte()} packetNumber=$packetNumber")  
             val expectedPackNo = packetNumber + (0x00000001).toUInt()
             val resultPackNo =
-                if (isRead == 64)
+                if (isRead > 1)
                     ISPCommandTool.toPackNo(readBuffer)
                 else
                     0.toUInt()          
-            if (!isConnect && (isRead == 64) && (resultPackNo != expectedPackNo)) {
+            if (!isConnect && (isRead > 1) && (resultPackNo != expectedPackNo)) {
                 Log.i("ISPManager", "Ignoring stale packet $resultPackNo, expected $expectedPackNo")
-            } else if (!isConnect && isRead == 64) {
+                Thread.sleep(200)
+                index++
+                continue
+            } else if (!isConnect && isRead > 1) {
                 callback.invoke(readBuffer, false)
                 return
             }
-            val allZero = (isRead == 64) && readBuffer.all { it == 0.toByte() }   
+            val allZero = (isRead > 1) && readBuffer.all { it == 0.toByte() }   
             readBufferStrring = HEXTool.toHexString(readBuffer)
             display = HEXTool.toDisPlayString(readBufferStrring)
             Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)             
@@ -659,7 +665,7 @@ object ISPManager {
             index++        
             Log.i("ISPManager", "index=" + index)
         }
-        callback.invoke(readBuffer,false)
+        callback.invoke(null, true)
     }
 
     @SuppressLint("NewApi")
