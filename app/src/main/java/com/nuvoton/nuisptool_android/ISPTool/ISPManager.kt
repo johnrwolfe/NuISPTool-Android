@@ -481,24 +481,86 @@ object ISPManager {
         var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
     }
 
-    fun sendCMD_CONNECT( callback: ((ByteArray?, Boolean,isTimeout:Boolean) -> Unit)) {
-
+    fun sendCMD_CONNECT(callback: ((ByteArray?, Boolean, Boolean) -> Unit)) {
+ 
         //如果是UART
-        if(ISPManager.interfaceType == NulinkInterfaceType.UART){
+        if (ISPManager.interfaceType == NulinkInterfaceType.UART) {
             SerialManager.sendCMD_CONNECT { bytes, b, isTimeout ->
-                callback.invoke(bytes, b,isTimeout)
+                callback.invoke(bytes, b, isTimeout)
             }
             return
         }
-
-        this.packetNumber = (0x00000001).toUInt()
-        val cmd = ISPCommands.CMD_CONNECT
-        val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-        Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber")
-        this.executeWriteRead(sendBuffer,100, callback = { readBuffer,isTimeout ->
-            var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
-            callback.invoke(readBuffer, isChecksum,isTimeout)
-        })
+        executeConnect { readBuffer, isTimeout ->
+            val sendBuffer =
+                ISPCommandTool.toCMD(
+                    ISPCommands.CMD_CONNECT,
+                    1.toUInt()
+                )
+            val isChecksum =
+                this.isChecksum_PackNo(
+                    sendBuffer,
+                    readBuffer
+                )
+            callback.invoke(
+                readBuffer,
+                isChecksum,
+                isTimeout
+            )
+        }
+    }
+  
+    @SuppressLint("NewApi")
+    private fun executeConnect(callback: (ByteArray?, Boolean) -> Unit) {
+        val usbDevice = OTGManager.get_USBDevice()
+        if (interfaceType != NulinkInterfaceType.USB) {
+            for (i in 0 until usbDevice.interfaceCount) {
+                if (
+                    usbDevice.getInterface(i).name != null &&
+                    usbDevice.getInterface(i).name!!.contains("ISP")
+                ) {
+                    connect_interface_index = i
+                }
+            }
+        } else {
+            connect_interface_index = 0
+        }
+        val intf = usbDevice.getInterface(connect_interface_index)
+        val writePoint = intf.getEndpoint(write_endpoint_index)
+        val readPoint = intf.getEndpoint(read_endpoint_index)
+        val connection = OTGManager.USBManager.openDevice(usbDevice)
+        connection.claimInterface(intf, forceClaim)
+        val readBuffer = ByteArray(64)
+        var index = 0
+        while (index < 20) {
+            packetNumber = 1.toUInt()
+            val sendBuffer = ISPCommandTool.toCMD(ISPCommands.CMD_CONNECT, packetNumber)
+            Log.i("ISPManager", "sendCMD cmd=CMD_CONNECT packetNumber=$packetNumber")
+            var sendBufferString = HEXTool.toHexString(sendBuffer)
+            var display = HEXTool.toDisPlayString(sendBufferString)
+            val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
+            Log.i("ISPManager", "isWrite=$isWrite    ,sendBuffer:  $display")
+            readBuffer.fill(0)
+            val isRead = connection.bulkTransfer(readPoint, readBuffer, readBuffer.size, 100)
+            val readBufferString = HEXTool.toHexString(readBuffer)
+            display = HEXTool.toDisPlayString(readBufferString)
+            Log.i("ISPManager", "isRead=$isRead    ,readBuffer:  $display")
+            if (isRead <= 0) {
+                Thread.sleep(200)
+                index++
+                Log.i("ISPManager", "index=$index")
+                continue
+            }          
+            val allZero = readBuffer.all { it == 0.toByte() }         
+            if (!allZero) {
+                Log.i("ISPManager", "Holfuy entered ISP mode")
+                callback.invoke(readBuffer, false)
+                return
+            }
+            Thread.sleep(200)
+            index++
+            Log.i("ISPManager", "index=$index")
+        }
+        callback.invoke(null, true)
     }
 
     fun sendCMD_GET_DEVICEID( callback: ((ByteArray?, Boolean) -> Unit)) {
@@ -563,7 +625,10 @@ object ISPManager {
         // checksum
         val checksum = ISPCommandTool.toChecksumBySendBuffer(sendBuffer)
         val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)
-        
+        Log.i("isChecksum_PackNo", "computedChecksum=$checksum resultChecksum=$resultChecksum")
+        val sendDisplay = HEXTool.toDisPlayString(HEXTool.toHexString(sendBuffer))
+        Log.i("isChecksum_PackNo", "checksumSendBuffer: $sendDisplay")
+        b
         if (checksum != resultChecksum) {
             Log.i(
                 "isChecksum_PackNo",
@@ -592,82 +657,77 @@ object ISPManager {
     }
 
     @SuppressLint("NewApi")
-    private fun executeWriteRead( cmdArray: ByteArray,timeoutIndex:Int,callback: (ByteArray?,isTimeout:Boolean) -> Unit){
-
+    // timeoutIndex currently unused. Retained to avoid broad caller churn during transport refactor.
+    private fun executeWriteRead(cmdArray: ByteArray, timeoutIndex: Int, 
+      callback: (ByteArray?, isTimeout: Boolean) -> Unit) {
+    
         //如果是Uart
-        if(ISPManager.interfaceType == NulinkInterfaceType.UART){
-            SerialManager.executeWriteRead(cmdArray,timeoutIndex,callback)
+        if (ISPManager.interfaceType == NulinkInterfaceType.UART) {
+            SerialManager.executeWriteRead(
+                cmdArray,
+                timeoutIndex,
+                callback
+            )
             return
         }
-
+    
         val usbDevice = OTGManager.get_USBDevice()
-
-        if(interfaceType != NulinkInterfaceType.USB){
-            for( i in 0..usbDevice.interfaceCount - 1){
-                if(usbDevice.getInterface(i).name != null && usbDevice.getInterface(i).name!!.indexOf("ISP")>-1){
-                    connect_interface_index = i  //找到 ISP_HID InterFace
+        if (interfaceType != NulinkInterfaceType.USB) {
+            for (i in 0 until usbDevice.interfaceCount) {
+                if (
+                    usbDevice.getInterface(i).name != null &&
+                    usbDevice.getInterface(i).name!!.contains("ISP")
+                ) {
+                    connect_interface_index = i
                 }
             }
-        }else{
+    
+        } else {
             connect_interface_index = 0
         }
-
-        var index = 0
-        var isRead = -1
+    
+        val intf = usbDevice.getInterface(connect_interface_index)
+        val writePoint = intf.getEndpoint(write_endpoint_index)
+        val readPoint = intf.getEndpoint(read_endpoint_index)
+        val connection = OTGManager.USBManager.openDevice(usbDevice)
+        connection.claimInterface(intf, forceClaim)
         val readBuffer = ByteArray(64)
-        var intf = usbDevice.getInterface(connect_interface_index)
-        var writePoint = intf.getEndpoint(write_endpoint_index)
-        var readPoint = intf.getEndpoint(read_endpoint_index)
-        var connection = OTGManager.USBManager.openDevice(usbDevice)
-        connection.claimInterface(intf,forceClaim)
         val sendBuffer = cmdArray.clone()
         sendBuffer[1] = interfaceType.value
-        // Make a finite number of attempts to send a command and read a valid response.
-        // For CONNECT, continue sending CONNECT commands until a valid, non-zero response
-        //   is received, indicating the Holfuy device has entered ISP mode.
-        // For non-CONNECT, ignore replies with incorrect packet numbers, as typically,
-        //   at least one such packet is received in response to the first command following
-        //   a successful CONNECT.
+        val sentPacketNumber = ISPCommandTool.toPackNo(sendBuffer)
+        val expectedPackNo = sentPacketNumber + 1.toUInt()
+        var index = 0
         while (index < 20) {
-            var readBufferStrring = HEXTool.toHexString(sendBuffer)
-            var display = HEXTool.toDisPlayString(readBufferStrring)
+            var sendBufferString = HEXTool.toHexString(sendBuffer)
+            var display = HEXTool.toDisPlayString(sendBufferString)
             val isWrite = connection.bulkTransfer(writePoint, sendBuffer, sendBuffer.size, 0)
-            Log.i("ISPManager", "isWrite=" + isWrite + "    ,sendBuffer:  " + display)
+            Log.i("ISPManager", "isWrite=$isWrite    ,sendBuffer:  $display")
             readBuffer.fill(0)
-            isRead = connection.bulkTransfer(readPoint, readBuffer,readBuffer.size,100)               
-            val isConnect = cmdArray[0] == ISPCommands.CMD_CONNECT.value.toByte() 
-            Log.i("ISPManager", "cmd=${cmdArray[0].toUByte()} packetNumber=$packetNumber")  
-            val expectedPackNo = packetNumber + (0x00000001).toUInt()
-            val resultPackNo =
-                if (isRead > 1)
-                    ISPCommandTool.toPackNo(readBuffer)
-                else
-                    0.toUInt()          
-            if (!isConnect && (isRead > 1) && (resultPackNo != expectedPackNo)) {
+            val isRead = connection.bulkTransfer(readPoint, readBuffer, readBuffer.size, 100 )
+            val readBufferString = HEXTool.toHexString(readBuffer)
+            display = HEXTool.toDisPlayString(readBufferString)
+            Log.i("ISPManager", "isRead=$isRead    ,readBuffer:  $display")
+            Log.i("ISPManager", "cmd=${cmdArray[0].toUByte()} packetNumber=$packetNumber")
+            if (isRead <= 0) {
+                Thread.sleep(200)
+                index++
+                Log.i("ISPManager", "index=$index")
+                continue
+            }
+            val resultPackNo = ISPCommandTool.toPackNo(readBuffer)
+            if (resultPackNo != expectedPackNo) {
                 Log.i("ISPManager", "Ignoring stale packet $resultPackNo, expected $expectedPackNo")
                 Thread.sleep(200)
                 index++
+                Log.i("ISPManager", "index=$index")
                 continue
-            } else if (!isConnect && isRead > 1) {
-                callback.invoke(readBuffer, false)
-                return
             }
-            val allZero = (isRead > 1) && readBuffer.all { it == 0.toByte() }   
-            readBufferStrring = HEXTool.toHexString(readBuffer)
-            display = HEXTool.toDisPlayString(readBufferStrring)
-            Log.i("ISPManager", "isRead=" + isRead + "    ,readBuffer:  " + display)             
-            if (isConnect && !allZero) {
-                Log.i("ISPManager", "Holfuy entered ISP mode")
-                callback.invoke(readBuffer, false)
-                return
-            }             
-            Thread.sleep(200)
-            index++        
-            Log.i("ISPManager", "index=" + index)
+            callback.invoke(readBuffer, false)
+            return
         }
         callback.invoke(null, true)
     }
-
+    
     @SuppressLint("NewApi")
     private fun read(): ByteArray? {
 
