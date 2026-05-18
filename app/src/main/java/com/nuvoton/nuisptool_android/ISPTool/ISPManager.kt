@@ -472,13 +472,28 @@ object ISPManager {
 
     }
 
-    fun sendCMD_SYNC_PACKNO( callback: ((ByteArray?) -> Unit)) {
-
+    fun sendCMD_SYNC_PACKNO(callback: ((ByteArray?, Boolean) -> Unit)) {
+    
         val cmd = ISPCommands.CMD_SYNC_PACKNO
         val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-        this.write( sendBuffer)
-        val readBuffer = this.read()
-        var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
+        Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber")
+        this.executeWriteRead(
+            sendBuffer,
+            1,
+            callback = { readBuffer, isTimeout ->
+    
+                val isChecksum =
+                    this.isChecksum_PackNo(
+                        sendBuffer,
+                        readBuffer
+                    )
+    
+                callback.invoke(
+                    readBuffer,
+                    isChecksum
+                )
+            }
+        )
     }
 
     fun sendCMD_CONNECT(callback: ((ByteArray?, Boolean, Boolean) -> Unit)) {
@@ -628,7 +643,6 @@ object ISPManager {
         Log.i("isChecksum_PackNo", "computedChecksum=$checksum resultChecksum=$resultChecksum")
         val sendDisplay = HEXTool.toDisPlayString(HEXTool.toHexString(sendBuffer))
         Log.i("isChecksum_PackNo", "checksumSendBuffer: $sendDisplay")
-        b
         if (checksum != resultChecksum) {
             Log.i(
                 "isChecksum_PackNo",
