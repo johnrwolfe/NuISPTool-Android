@@ -476,7 +476,9 @@ object ISPManager {
     
         val cmd = ISPCommands.CMD_SYNC_PACKNO
         val sendBuffer = ISPCommandTool.toCMD(cmd, packetNumber)
-        Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber")
+        val packNoBytes = HEXTool.UIntTo4Bytes(packetNumber)
+        System.arraycopy(packNoBytes, 0, sendBuffer, 8, 4)
+        Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber syncPackNo=$packetNumber")
         this.executeWriteRead(
             sendBuffer,
             1,

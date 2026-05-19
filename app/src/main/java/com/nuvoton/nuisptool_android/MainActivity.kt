@@ -268,9 +268,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doConnectDevice() {
-
+    
         //等待目標版進入 ISP MODE
         if (ISPManager.interfaceType != NulinkInterfaceType.USB) {
+    
             this.runOnUiThread {
                 DialogTool.showProgressDialog(
                     this,
@@ -280,15 +281,20 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-
+    
         //如果是CAN
         if (ISPManager.interfaceType == NulinkInterfaceType.CAN) {
+    
             ISPManager.sendCMD_CAN_GET_DEVICE(callback = {
+    
                 runOnUiThread {
+    
                     DialogTool.dismissDialog()
-
+    
                     if (it == null) {
+    
                         Log.i(TAG, "sendCMD_CONNECT ---- is Not CAN InterFace")
+    
                         runOnUiThread {
                             DialogTool.showAlertDialog(
                                 this,
@@ -298,107 +304,169 @@ class MainActivity : AppCompatActivity() {
                                 null
                             )
                         }
+    
                         return@runOnUiThread
                     }
+    
                     _deviceID = ISPCommandTool.toCAN_DeviceID(it)
+    
                     Log.i(TAG, "toCAN_DeviceID ---- Device:$_deviceID")
+    
                     if (FileManager.getChipInfoByPDID(_deviceID!!) == null) {
+    
                         _mainMessageText.setText("Find Device: unknown Device")
+    
                         _connectDeviceButton.isEnabled = true
+    
                         _connectDeviceButton.setBackgroundColor(Color.RED)
+    
                         return@runOnUiThread
                     }
-                    _mainMessageText.setText("Find Device: " + FileManager.CHIP_DATA.chipPdid.name)
+    
+                    _mainMessageText.setText(
+                        "Find Device: " +
+                                FileManager.CHIP_DATA.chipPdid.name
+                    )
+    
                     _connectDeviceButton.isEnabled = true
+    
                     _connectDeviceButton.setBackgroundColor(Color.RED)
                 }
             })
+    
             return
         }
-
-        //送出指令
-        ISPManager.sendCMD_CONNECT(callback = { byteArray, isChecksum, isTimeout ->
-
-            DialogTool.dismissDialog()
-
-            if (isTimeout == true) {
-                Log.i(TAG, "sendCMD_CONNECT ---- Search Device is time out.")
-                runOnUiThread {
-                    DialogTool.showAlertDialog(
-                        this,
-                        "Search Device is time out.",
-                        true,
-                        false,
-                        null
+    
+        ISPManager.sendCMD_CONNECT(
+            callback = { byteArray, isChecksum, isTimeout ->
+    
+                DialogTool.dismissDialog()
+    
+                if (isTimeout) {
+    
+                    Log.i(
+                        TAG,
+                        "sendCMD_CONNECT ---- Search Device is time out."
                     )
-                }
-                return@sendCMD_CONNECT
-            }
-
-           if (isChecksum == false) {          
-              Log.i(TAG, "sendCMD_CONNECT ---- device did not enter ISP mode")
-          
-              runOnUiThread {
-                  DialogTool.showAlertDialog(
-                      this,
-                      "Device did not enter ISP mode.",
-                      true,
-                      false,
-                      null
-                  )
-              }          
-              return@sendCMD_CONNECT
-          }
-
-//            ISPManager.sendCMD_READ_CONFIG(_USBDevice!!, callback = {byteArray ->
-//                if (isChecksum == false || byteArray == null) {
-//                    Log.i(TAG, "sendCMD_READ_CONFIG ---- fail")
-//                    return@sendCMD_READ_CONFIG
-//                }
-//            })
-
-    ISPManager.sendCMD_SYNC_PACKNO { syncBuffer, syncChecksum ->
     
-        runOnUiThread {
-            if (!syncChecksum || syncBuffer == null) {
-                Log.i(TAG, "sendCMD_SYNC_PACKNO ---- fail")
-                return@runOnUiThread
-            }
-    
-            ISPManager.sendCMD_GET_FWVER { fwBuffer, fwChecksum ->
-                runOnUiThread {
-                    if (!fwChecksum || fwBuffer == null) {
-                        Log.i(TAG, "sendCMD_GET_FWVER ---- fail")
-                        return@runOnUiThread
+                    runOnUiThread {
+                        DialogTool.showAlertDialog(
+                            this,
+                            "Search Device is time out.",
+                            true,
+                            false,
+                            null
+                        )
                     }
     
-                    ISPManager.sendCMD_GET_DEVICEID { byteArray, isChecksum ->
-                        runOnUiThread {
-                            if (!isChecksum || byteArray == null) {
-                                Log.i(TAG, "sendCMD_GET_DEVICEID ---- fail")
-                                return@runOnUiThread
-                            }
-                            _deviceID = ISPCommandTool.toDeviceID(byteArray)
-                            Log.i(TAG, "sendCMD_GET_DEVICEID ---- Device:$_deviceID")
+                    return@sendCMD_CONNECT
+                }
     
-                            if (FileManager.getChipInfoByPDID(_deviceID!!) == null) {
-                                _mainMessageText.setText("Find Device: unknown Device")
-                                _connectDeviceButton.isEnabled = true
-                                _connectDeviceButton.setBackgroundColor(Color.RED)
-                                return@runOnUiThread
-                            }
+                if (!isChecksum) {
     
-                            _mainMessageText.setText(
-                                "Find Device: " +
-                                FileManager.CHIP_DATA.chipPdid.name
+                    Log.i(
+                        TAG,
+                        "sendCMD_CONNECT ---- device did not enter ISP mode"
+                    )
+    
+                    runOnUiThread {
+                        DialogTool.showAlertDialog(
+                            this,
+                            "Device did not enter ISP mode.",
+                            true,
+                            false,
+                            null
+                        )
+                    }
+    
+                    return@sendCMD_CONNECT
+                }
+    
+                ISPManager.sendCMD_SYNC_PACKNO { syncBuffer, syncChecksum ->
+    
+                    runOnUiThread {
+    
+                        if (!syncChecksum || syncBuffer == null) {
+    
+                            Log.i(
+                                TAG,
+                                "sendCMD_SYNC_PACKNO ---- fail"
                             )
-                            _connectDeviceButton.isEnabled = true
-                            _connectDeviceButton.setBackgroundColor(Color.RED)
+    
+                            return@runOnUiThread
+                        }
+    
+                        ISPManager.sendCMD_GET_FWVER { fwBuffer, fwChecksum ->
+    
+                            runOnUiThread {
+    
+                                if (!fwChecksum || fwBuffer == null) {
+    
+                                    Log.i(
+                                        TAG,
+                                        "sendCMD_GET_FWVER ---- fail"
+                                    )
+    
+                                    return@runOnUiThread
+                                }
+    
+                                ISPManager.sendCMD_GET_DEVICEID { readBuffer, deviceChecksum ->
+    
+                                    runOnUiThread {
+    
+                                        if (!deviceChecksum || readBuffer == null) {
+    
+                                            Log.i(
+                                                TAG,
+                                                "sendCMD_GET_DEVICEID ---- fail"
+                                            )
+    
+                                            return@runOnUiThread
+                                        }
+    
+                                        _deviceID =
+                                            ISPCommandTool.toDeviceID(readBuffer)
+    
+                                        Log.i(
+                                            TAG,
+                                            "sendCMD_GET_DEVICEID ---- Device:$_deviceID"
+                                        )
+    
+                                        if (
+                                            FileManager.getChipInfoByPDID(_deviceID!!) == null
+                                        ) {
+    
+                                            _mainMessageText.setText(
+                                                "Find Device: unknown Device"
+                                            )
+    
+                                            _connectDeviceButton.isEnabled = true
+    
+                                            _connectDeviceButton.setBackgroundColor(
+                                                Color.RED
+                                            )
+    
+                                            return@runOnUiThread
+                                        }
+    
+                                        _mainMessageText.setText(
+                                            "Find Device: " +
+                                                    FileManager.CHIP_DATA.chipPdid.name
+                                        )
+    
+                                        _connectDeviceButton.isEnabled = true
+    
+                                        _connectDeviceButton.setBackgroundColor(
+                                            Color.RED
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
+        )
     }
 
     /**
