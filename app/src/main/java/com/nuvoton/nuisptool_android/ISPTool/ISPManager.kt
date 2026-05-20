@@ -8,6 +8,19 @@ import com.nuvoton.nuisptool_android.Util.Log
 import com.nuvoton.nuisptool_android.Util.HEXTool
 import com.nuvoton.nuisptool_android.WiFi.SocketCmdManager
 import kotlin.concurrent.thread
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+
+data class ConnectResult(
+    val buffer: ByteArray?,
+    val isChecksum: Boolean,
+    val isTimeout: Boolean
+)
+
+data class CommandResult(
+    val buffer: ByteArray?,
+    val isChecksum: Boolean
+)
 
 enum class NulinkInterfaceType constructor(val value: Byte) {
 
@@ -336,6 +349,17 @@ object ISPManager {
             }
         )
     }
+    
+    suspend fun suspendCMD_READ_CONFIG(): ByteArray? =
+        suspendCancellableCoroutine { cont ->
+    
+            sendCMD_READ_CONFIG { buffer ->
+    
+                if (cont.isActive) {
+                    cont.resume(buffer)
+                }
+            }
+        }
 
     fun sendCMD_GET_FWVER(callback: ((ByteArray?, Boolean) -> Unit)) {
 
@@ -379,6 +403,22 @@ object ISPManager {
             }
         )
     }
+    
+    suspend fun suspendCMD_GET_FWVER(): CommandResult =
+        suspendCancellableCoroutine { cont ->
+    
+            sendCMD_GET_FWVER { buffer, isChecksum ->
+    
+                if (cont.isActive) {
+                    cont.resume(
+                        CommandResult(
+                            buffer,
+                            isChecksum
+                        )
+                    )
+                }
+            }
+        }
 
     fun sendCMD_RUN_APROM( callback: ((Boolean) -> Unit)) {
 
@@ -497,6 +537,23 @@ object ISPManager {
             }
         )
     }
+    
+    suspend fun suspendCMD_SYNC_PACKNO(): CommandResult =
+        suspendCancellableCoroutine { cont ->
+    
+            sendCMD_SYNC_PACKNO { buffer, isChecksum ->
+    
+                if (cont.isActive) {
+                    cont.resume(
+                        CommandResult(
+                            buffer,
+                            isChecksum
+                        )
+                    )
+                }
+            }
+        }
+
 
     fun sendCMD_CONNECT(callback: ((ByteArray?, Boolean, Boolean) -> Unit)) {
  
@@ -580,6 +637,23 @@ object ISPManager {
         callback.invoke(null, true)
     }
 
+    suspend fun suspendCMD_CONNECT(): ConnectResult =
+        suspendCancellableCoroutine { cont ->
+    
+            sendCMD_CONNECT { buffer, isChecksum, isTimeout ->
+    
+                if (cont.isActive) {
+                    cont.resume(
+                        ConnectResult(
+                            buffer,
+                            isChecksum,
+                            isTimeout
+                        )
+                    )
+                }
+            }
+        }
+
     fun sendCMD_GET_DEVICEID( callback: ((ByteArray?, Boolean) -> Unit)) {
 
         //如果是BLE
@@ -615,6 +689,22 @@ object ISPManager {
             }
         ) 
     }
+    
+    suspend fun suspendCMD_GET_DEVICEID(): CommandResult =
+        suspendCancellableCoroutine { cont ->
+    
+            sendCMD_GET_DEVICEID { buffer, isChecksum ->
+    
+                if (cont.isActive) {
+                    cont.resume(
+                        CommandResult(
+                            buffer,
+                            isChecksum
+                        )
+                    )
+                }
+            }
+        }
 
 //    private fun sendCMD(usbDevice: UsbDevice, cmd: ISPCommands) {
 //

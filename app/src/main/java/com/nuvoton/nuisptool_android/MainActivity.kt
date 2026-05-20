@@ -1,5 +1,11 @@
 package com.nuvoton.nuisptool_android
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 
 import android.Manifest
 import android.bluetooth.BluetoothProfile
@@ -336,137 +342,104 @@ class MainActivity : AppCompatActivity() {
     
             return
         }
-    
-        ISPManager.sendCMD_CONNECT(
-            callback = { byteArray, isChecksum, isTimeout ->
-    
-                DialogTool.dismissDialog()
-    
-                if (isTimeout) {
-    
-                    Log.i(
-                        TAG,
-                        "sendCMD_CONNECT ---- Search Device is time out."
-                    )
-    
-                    runOnUiThread {
-                        DialogTool.showAlertDialog(
-                            this,
-                            "Search Device is time out.",
-                            true,
-                            false,
-                            null
-                        )
-                    }
-    
-                    return@sendCMD_CONNECT
-                }
-    
-                if (!isChecksum) {
-    
-                    Log.i(
-                        TAG,
-                        "sendCMD_CONNECT ---- device did not enter ISP mode"
-                    )
-    
-                    runOnUiThread {
-                        DialogTool.showAlertDialog(
-                            this,
-                            "Device did not enter ISP mode.",
-                            true,
-                            false,
-                            null
-                        )
-                    }
-    
-                    return@sendCMD_CONNECT
-                }
-    
-                ISPManager.sendCMD_SYNC_PACKNO { syncBuffer, syncChecksum ->
-    
-                    runOnUiThread {
-    
-                        if (!syncChecksum || syncBuffer == null) {
-    
-                            Log.i(
-                                TAG,
-                                "sendCMD_SYNC_PACKNO ---- fail"
-                            )
-    
-                            return@runOnUiThread
-                        }
-    
-                        ISPManager.sendCMD_GET_FWVER { fwBuffer, fwChecksum ->
-    
-                            runOnUiThread {
-    
-                                if (!fwChecksum || fwBuffer == null) {
-    
-                                    Log.i(
-                                        TAG,
-                                        "sendCMD_GET_FWVER ---- fail"
-                                    )
-    
-                                    return@runOnUiThread
-                                }
-    
-                                ISPManager.sendCMD_GET_DEVICEID { readBuffer, deviceChecksum ->
-    
-                                    runOnUiThread {
-    
-                                        if (!deviceChecksum || readBuffer == null) {
-    
-                                            Log.i(
-                                                TAG,
-                                                "sendCMD_GET_DEVICEID ---- fail"
-                                            )
-    
-                                            return@runOnUiThread
-                                        }
-    
-                                        _deviceID =
-                                            ISPCommandTool.toDeviceID(readBuffer)
-    
-                                        Log.i(
-                                            TAG,
-                                            "sendCMD_GET_DEVICEID ---- Device:$_deviceID"
-                                        )
-    
-                                        if (
-                                            FileManager.getChipInfoByPDID(_deviceID!!) == null
-                                        ) {
-    
-                                            _mainMessageText.setText(
-                                                "Find Device: unknown Device"
-                                            )
-    
-                                            _connectDeviceButton.isEnabled = true
-    
-                                            _connectDeviceButton.setBackgroundColor(
-                                                Color.RED
-                                            )
-    
-                                            return@runOnUiThread
-                                        }
-    
-                                        _mainMessageText.setText(
-                                            "Find Device: " +
-                                                    FileManager.CHIP_DATA.chipPdid.name
-                                        )
-    
-                                        _connectDeviceButton.isEnabled = true
-    
-                                        _connectDeviceButton.setBackgroundColor(
-                                            Color.RED
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+
+        lifecycleScope.launch {
+
+            val connectResult = withContext(Dispatchers.IO) {
+                ISPManager.suspendCMD_CONNECT()
             }
-        )
+    
+            DialogTool.dismissDialog()
+    
+            if (connectResult.isTimeout) {
+    
+                Log.i(TAG, "sendCMD_CONNECT ---- Search Device is time out.")
+    
+                DialogTool.showAlertDialog(
+                    this@MainActivity,
+                    "Search Device is time out.",
+                    true,
+                    false,
+                    null
+                )
+    
+                return@launch
+            }
+    
+            if (!connectResult.isChecksum) {
+    
+                Log.i(TAG, "sendCMD_CONNECT ---- device did not enter ISP mode")
+    
+                DialogTool.showAlertDialog(
+                    this@MainActivity,
+                    "Device did not enter ISP mode.",
+                    true,
+                    false,
+                    null
+                )
+    
+                return@launch
+            }
+    
+            val syncResult = withContext(Dispatchers.IO) {
+                ISPManager.suspendCMD_SYNC_PACKNO()
+            }
+    
+            if (!syncResult.isChecksum || syncResult.buffer == null) {
+    
+                Log.i(TAG, "sendCMD_SYNC_PACKNO ---- fail")
+                return@launch
+            }
+    
+            val fwResult = withContext(Dispatchers.IO) {
+                ISPManager.suspendCMD_GET_FWVER()
+            }
+    
+            if (!fwResult.isChecksum || fwResult.buffer == null) {
+    
+                Log.i(TAG, "sendCMD_GET_FWVER ---- fail")
+                return@launch
+            }
+    
+            // IMPORTANT:
+            // We can now easily insert READ_CONFIG later.
+    
+            val deviceResult = withContext(Dispatchers.IO) {
+                ISPManager.suspendCMD_GET_DEVICEID()
+            }
+    
+            if (!deviceResult.isChecksum || deviceResult.buffer == null) {
+    
+                Log.i(TAG, "sendCMD_GET_DEVICEID ---- fail")
+                return@launch
+            }
+    
+            _deviceID =
+                ISPCommandTool.toDeviceID(deviceResult.buffer)
+    
+            Log.i(
+                TAG,
+                "sendCMD_GET_DEVICEID ---- Device:$_deviceID"
+            )
+    
+            if (FileManager.getChipInfoByPDID(_deviceID!!) == null) {
+    
+                _mainMessageText.text =
+                    "Find Device: unknown Device"
+    
+                _connectDeviceButton.isEnabled = true
+                _connectDeviceButton.setBackgroundColor(Color.RED)
+    
+                return@launch
+            }
+    
+            _mainMessageText.text =
+                "Find Device: " +
+                        FileManager.CHIP_DATA.chipPdid.name
+    
+            _connectDeviceButton.isEnabled = true
+            _connectDeviceButton.setBackgroundColor(Color.RED)
+        }
     }
 
     /**
