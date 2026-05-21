@@ -401,15 +401,15 @@ class MainActivity : AppCompatActivity() {
                 return@launch
             }
     
-//            val configBuffer = withContext(Dispatchers.IO) {
-//                ISPManager.suspendCMD_READ_CONFIG()
-//            }
-//            
-//            if (configBuffer == null) {
-//            
-//                Log.i(TAG, "sendCMD_READ_CONFIG ---- fail")
-//                return@launch
-//            }
+            val configBuffer = withContext(Dispatchers.IO) {
+                ISPManager.suspendCMD_READ_CONFIG()
+            }
+            
+            if (configBuffer == null) {
+            
+                Log.i(TAG, "sendCMD_READ_CONFIG ---- fail")
+                return@launch
+            }
     
             val deviceResult = withContext(Dispatchers.IO) {
                 ISPManager.suspendCMD_GET_DEVICEID()
