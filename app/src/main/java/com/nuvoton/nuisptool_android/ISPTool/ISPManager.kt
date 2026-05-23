@@ -597,8 +597,13 @@ object ISPManager {
             connect_interface_index = 0
         }
     
-        if (!openUsbSession()) {    
-            callback.invoke(null, true)    
+        if (
+            usbConnection == null ||
+            readEndpoint == null ||
+            writeEndpoint == null
+        ) {        
+            Log.i("ISPManager", "executeConnect: USB session not open")        
+            callback.invoke(null, true)        
             return
         }
         
@@ -680,7 +685,15 @@ object ISPManager {
         }
 
     @SuppressLint("NewApi")
-    private fun openUsbSession(): Boolean {    
+    fun openUsbSession(): Boolean {  
+        if (
+            usbConnection != null &&
+            readEndpoint != null &&
+            writeEndpoint != null
+        ) {        
+            Log.i("ISPManager", "openUsbSession already open")        
+            return true
+        }  
         val usbDevice = OTGManager.get_USBDevice()    
         if (interfaceType != NulinkInterfaceType.USB) {    
             for (i in 0 until usbDevice.interfaceCount) {    
@@ -708,7 +721,7 @@ object ISPManager {
         return claimed
     }
     
-    private fun closeUsbSession() {    
+    fun closeUsbSession() {    
         try {    
             usbConnection?.releaseInterface(usbInterface)    
         } catch (_: Exception) {

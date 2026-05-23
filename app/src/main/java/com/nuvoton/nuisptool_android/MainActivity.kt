@@ -193,8 +193,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         //註冊離線監聽
-        OTGManager.setIsOnlineListener {
-            if (it == false) { //裝置離線
+        OTGManager.setIsOnlineListener {        
+            if (it == false) { //裝置離線       
+                ISPManager.closeUsbSession()        
                 backToTop()
             }
         }
@@ -235,6 +236,7 @@ class MainActivity : AppCompatActivity() {
         //todo OTGManager USB HOST init
         OTGManager.init(this)//初始化
         OTGManager.start(this)//監聽
+        OTGManager.startUsbConnecting(this)
         OTGManager.setGetUsbDeviceListener {
             //取得裝置 USB device
             _USBDevice = it
@@ -260,6 +262,10 @@ class MainActivity : AppCompatActivity() {
                 this.runOnUiThread {
                     DialogTool.showAlertDialog(this, "IS Not ISP Device", true, false, null)
                 }
+                return@setGetUsbDeviceListener
+            }
+            if (!ISPManager.openUsbSession()) {    
+                Log.i("MainActivity", "Failed to open USB session")    
                 return@setGetUsbDeviceListener
             }
             this.doConnectDevice()

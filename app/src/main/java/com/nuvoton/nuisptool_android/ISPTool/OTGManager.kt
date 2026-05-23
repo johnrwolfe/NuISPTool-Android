@@ -155,6 +155,14 @@ object OTGManager {
                 if (_isOnlineListener != null) {
                     _isOnlineListener?.invoke(false)
                 }
+                if (
+                    intent.getParcelableExtra<UsbDevice>(
+                        UsbManager.EXTRA_DEVICE
+                    ) == _USBDevice
+                ) {
+                
+                    // optional future cleanup
+                }                
 
             }
         }
