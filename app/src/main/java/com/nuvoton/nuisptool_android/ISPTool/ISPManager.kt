@@ -13,6 +13,7 @@ import kotlin.coroutines.resume
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
+import android.hardware.usb.UsbDevice
 
 data class ConnectResult(
     val buffer: ByteArray?,
@@ -582,21 +583,6 @@ object ISPManager {
   
     @SuppressLint("NewApi")
     private fun executeConnect(callback: (ByteArray?, Boolean) -> Unit) {    
-        val usbDevice = OTGManager.get_USBDevice()
-        if (interfaceType != NulinkInterfaceType.USB) {
-            for (i in 0 until usbDevice.interfaceCount) {
-                if (
-                    usbDevice.getInterface(i).name != null &&
-                    usbDevice.getInterface(i).name!!.contains("ISP")
-                ) {
-                    connect_interface_index = i
-                }
-            }
-        }
-        else {
-            connect_interface_index = 0
-        }
-    
         if (
             usbConnection == null ||
             readEndpoint == null ||
@@ -685,7 +671,9 @@ object ISPManager {
         }
 
     @SuppressLint("NewApi")
-    fun openUsbSession(): Boolean {  
+    fun openUsbSession(
+        usbDevice: UsbDevice
+    ): Boolean {
         if (
             usbConnection != null &&
             readEndpoint != null &&
@@ -693,8 +681,7 @@ object ISPManager {
         ) {        
             Log.i("ISPManager", "openUsbSession already open")        
             return true
-        }  
-        val usbDevice = OTGManager.get_USBDevice()    
+        }   
         if (interfaceType != NulinkInterfaceType.USB) {    
             for (i in 0 until usbDevice.interfaceCount) {    
                 if (

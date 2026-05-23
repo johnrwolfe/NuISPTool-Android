@@ -264,7 +264,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 return@setGetUsbDeviceListener
             }
-            if (!ISPManager.openUsbSession()) {    
+            if (!ISPManager.openUsbSession(OTGManager.get_USBDevice())) {    
                 Log.i("MainActivity", "Failed to open USB session")    
                 return@setGetUsbDeviceListener
             }
