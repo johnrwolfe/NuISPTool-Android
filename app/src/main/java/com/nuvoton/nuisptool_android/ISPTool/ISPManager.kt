@@ -361,7 +361,7 @@ this.write(sendBuffer)
 
 val expectedPackNo = packetNumber + 1.toUInt()
 
-val readBuffer = waitForPacket(expectedPackNo)
+val readBuffer = waitForExpectedPacket(expectedPackNo)
 
 if (readBuffer == null) {
 
@@ -429,7 +429,7 @@ callback.invoke(readBuffer)
 val expectedPackNo =
     packetNumber + 1.toUInt()
 
-val readBuffer = waitForPacket(expectedPackNo)
+val readBuffer = waitForExpectedPacket(expectedPackNo)
         var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
         callback.invoke(readBuffer, isChecksum)
     }
@@ -582,7 +582,7 @@ val expectedPackNo =
     packetNumber + 1.toUInt()
 
 val readBuffer =
-    waitForPacket(expectedPackNo)
+    waitForExpectedPacket(expectedPackNo)
 
 val isChecksum =
     this.isChecksum_PackNo(
@@ -895,7 +895,7 @@ private fun closeUsbSession() {
         Log.i("ISPManager", "sendCMD cmd=${cmd} packetNumber=$packetNumber")  
         this.write( sendBuffer)
         val expectedPackNo = packetNumber + 1.toUInt()
-        val readBuffer = waitForPacket(expectedPackNo)
+        val readBuffer = waitForExpectedPacket(expectedPackNo)
         var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
         callback.invoke(readBuffer,isChecksum)
     }
@@ -1088,7 +1088,7 @@ private fun read(): ByteArray? {
     return readBuffer
 }
 
-private fun waitForPacket(
+private fun waitForExpectedPacket(
     expectedPackNo: UInt,
     maxAttempts: Int = 20
 ): ByteArray? {
@@ -1103,7 +1103,7 @@ private fun waitForPacket(
 
             Log.i(
                 "ISPManager",
-                "waitForPacket readBuffer == null"
+                "waitForExpectedPacket readBuffer == null"
             )
 
             index++
@@ -1119,13 +1119,13 @@ private fun waitForPacket(
 
         Log.i(
             "ISPManager",
-            "waitForPacket " +
+            "waitForExpectedPacket " +
             "resultPackNo=$resultPackNo " +
             "expectedPackNo=$expectedPackNo " +
             "checksum=$resultChecksum"
         )
 
-        if (resultPackNo < expectedPackNo) {
+        if (resultPackNo != expectedPackNo) {
 
             val readBufferString =
                 HEXTool.toHexString(readBuffer)
@@ -1135,7 +1135,7 @@ private fun waitForPacket(
 
             Log.i(
                 "ISPManager",
-                "Ignoring earlier packet: $display"
+                "Ignoring unexpected packet: $display"
             )
 
             index++
@@ -1148,7 +1148,7 @@ private fun waitForPacket(
 
     Log.i(
         "ISPManager",
-        "waitForPacket timeout waiting for packNo=$expectedPackNo"
+        "waitForExpectedPacket timeout waiting for packNo=$expectedPackNo"
     )
 
     return null
