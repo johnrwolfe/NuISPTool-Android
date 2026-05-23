@@ -201,6 +201,8 @@ class ISPActivity : AppCompatActivity() {
         //讀取ＪＳＯＮ檔產生列表
         val series = FileManager.CHIP_DATA.chipPdid.series
         val index = FileManager.CHIP_DATA.chipPdid.jsonIndex
+        Log.d(TAG, "series=$series jsonIndex=$index")
+        Log.d(TAG, "Looking for raw resource: ${index?.lowercase()}")
         val isLoadSuccess = ConfigManager.readConfigFromFile(this,series, index)
         if(isLoadSuccess != true){
             runOnUiThread {

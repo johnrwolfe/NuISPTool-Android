@@ -6640,7 +6640,7 @@
     "PID": "0x30012000",
     "series": "PROJ_NUC100DN",
     "note": null,
-    "jsonIndex": null
+    "jsonIndex": "proj_nuc100dn"
   },
   {
     "name": "NUC120LE2DN",
