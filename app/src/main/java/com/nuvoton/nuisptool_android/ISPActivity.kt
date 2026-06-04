@@ -71,6 +71,7 @@ class ISPActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.i("ISPActivityLifecycle", "onCreate")
         setContentView(R.layout.activity_ispactivity)
         getSupportActionBar()!!.setTitle("Nuvoton Android ISP Tool")
         _text_devies_interface = findViewById<View>(R.id.connection_interface) as TextView
@@ -132,6 +133,8 @@ class ISPActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        Log.i("ISPActivityLifecycle", "onResume")
+        
         this.initUI()
 
         //註冊離線監聽
@@ -768,5 +771,25 @@ class ISPActivity : AppCompatActivity() {
             val im: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             im.hideSoftInputFromWindow( token,  InputMethodManager.HIDE_NOT_ALWAYS )
         }
+    }
+    
+    override fun onStart() {
+        super.onStart()
+        Log.i("ISPActivityLifecycle", "onStart")
+    }
+    
+    override fun onPause() {
+        Log.i("ISPActivityLifecycle", "onPause")
+        super.onPause()
+    }
+    
+    override fun onStop() {
+        Log.i("ISPActivityLifecycle", "onStop")
+        super.onStop()
+    }
+    
+    override fun onDestroy() {
+        Log.i("ISPActivityLifecycle", "onDestroy")
+        super.onDestroy()
     }
 }

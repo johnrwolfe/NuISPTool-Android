@@ -674,12 +674,14 @@ object ISPManager {
     fun openUsbSession(
         usbDevice: UsbDevice
     ): Boolean {
+        Log.i("ISPManagerSession", "openUsbSession requested")
         if (
             usbConnection != null &&
             readEndpoint != null &&
             writeEndpoint != null
         ) {        
-            Log.i("ISPManager", "openUsbSession already open")        
+            Log.i("ISPManager", "openUsbSession already open") 
+            Log.i("ISPManagerSession", "USB session already OPEN")       
             return true
         }   
         if (interfaceType != NulinkInterfaceType.USB) {    
@@ -704,11 +706,13 @@ object ISPManager {
             return false
         }    
         val claimed = usbConnection!!.claimInterface(usbInterface, forceClaim)    
-        Log.i("ISPManager", "openUsbSession claimInterface=$claimed")    
+        Log.i("ISPManager", "openUsbSession claimInterface=$claimed")  
+        Log.i("ISPManagerSession", "USB session OPEN")  
         return claimed
     }
     
-    fun closeUsbSession() {    
+    fun closeUsbSession() {  
+        Log.i("ISPManagerSession", "closeUsbSession requested")  
         try {    
             usbConnection?.releaseInterface(usbInterface)    
         } catch (_: Exception) {
@@ -724,6 +728,7 @@ object ISPManager {
         readEndpoint = null
         writeEndpoint = null    
         Log.i("ISPManager", "USB session closed")
+        Log.i("ISPManagerSession", "USB session CLOSED")
     }
 
     fun sendCMD_GET_DEVICEID( callback: ((ByteArray?, Boolean) -> Unit)) {

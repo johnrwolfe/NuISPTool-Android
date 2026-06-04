@@ -89,6 +89,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
+        Log.i("MainActivityLifecycle", "onCreate")
 
         getSupportActionBar()!!.setTitle("Nuvoton Android ISP Tool")
 
@@ -192,6 +194,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        Log.i("MainActivityLifecycle", "onResume")
+        
         //註冊離線監聽
         OTGManager.setIsOnlineListener {        
             if (it == false) { //裝置離線       
@@ -1031,5 +1035,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    override fun onStart() {
+        super.onStart()
+        Log.i("MainActivityLifecycle", "onStart")
+    }
+    
+    override fun onPause() {
+        Log.i("MainActivityLifecycle", "onPause")
+        super.onPause()
+    }
+    
+    override fun onStop() {
+        Log.i("MainActivityLifecycle", "onStop")
+        super.onStop()
+    }
+    
+    override fun onDestroy() {
+        Log.i("MainActivityLifecycle", "onDestroy")
+        super.onDestroy()
+    }
 }
