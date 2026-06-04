@@ -71,7 +71,7 @@ class ISPActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i("ISPActivityLifecycle", "onCreate")
+        Log.i("ISPActivityLifecycle", "onCreate  instance=${System.identityHashCode(this)}")
         setContentView(R.layout.activity_ispactivity)
         getSupportActionBar()!!.setTitle("Nuvoton Android ISP Tool")
         _text_devies_interface = findViewById<View>(R.id.connection_interface) as TextView
@@ -789,7 +789,7 @@ class ISPActivity : AppCompatActivity() {
     }
     
     override fun onDestroy() {
-        Log.i("ISPActivityLifecycle", "onDestroy")
+        Log.i("ISPActivityLifecycle", "onDestroy  instance=${System.identityHashCode(this)}")
         super.onDestroy()
     }
 }

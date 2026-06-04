@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
-        Log.i("MainActivityLifecycle", "onCreate")
+        Log.i("MainActivityLifecycle", "onCreate  instance=${System.identityHashCode(this)}")
 
         getSupportActionBar()!!.setTitle("Nuvoton Android ISP Tool")
 
@@ -194,7 +194,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        Log.i("MainActivityLifecycle", "onResume")
+        Log.i("MainActivityLifecycle", "onResume  instance=${System.identityHashCode(this)}")
         
         //註冊離線監聽
         OTGManager.setIsOnlineListener {        
