@@ -217,7 +217,6 @@ class ISPActivity : AppCompatActivity() {
 
             ISPManager.sendCMD_READ_CONFIG( callback = {
                 if (it == null) { return@sendCMD_READ_CONFIG}
-                var configText = "Config 0,1,2,3：\n"
                 val displayConfig0 = ISPCommandTool.toDisplayComfig0(it)
                 val displayConfig1 = ISPCommandTool.toDisplayComfig1(it)
                 val displayConfig2 = ISPCommandTool.toDisplayComfig2(it)
@@ -234,7 +233,6 @@ class ISPActivity : AppCompatActivity() {
         ISPManager.sendCMD_READ_CONFIG( callback = {
             if (it == null) { return@sendCMD_READ_CONFIG}
 
-            var configText = "Config 0,1,2,3：\n"
             val displayConfig0 = ISPCommandTool.toDisplayComfig0(it)
             val displayConfig1 = ISPCommandTool.toDisplayComfig1(it)
             val displayConfig2 = ISPCommandTool.toDisplayComfig2(it)
@@ -262,6 +260,7 @@ class ISPActivity : AppCompatActivity() {
 
                         _apromSize = ISPCommandTool.toAPROMSize(it)/1024
                         _DataFlashSize = (tempAPROMSize - ISPCommandTool.toAPROMSize(it))/1024
+                        Log.i(TAG, "Calculated APROM=${_apromSize}KB DataFlash=${_DataFlashSize}KB")
 
                     }
                     if(configSet.values == "1"){
@@ -269,21 +268,19 @@ class ISPActivity : AppCompatActivity() {
                     }
                 }
             }
+            _text_devies_aprom.text = "APROM："+_apromSize.toString() + "*1024"
+            _text_devies_data.text = "DataFlash："+_DataFlashSize.toString() + "*1024"
+            Log.i(TAG, "Displaying APROM=${_apromSize}KB DataFlash=${_DataFlashSize}KB")
+
+            if(_DataFlashSize <= 0){
+                _checkbox_date_flash.isEnabled = false
+                _selectDataFlash.isEnabled = false
+            }else{
+                _checkbox_date_flash.isEnabled = true
+                _selectDataFlash.isEnabled = true
+            }
 
         })
-
-        _text_devies_part_no.text = "Part No.："+FileManager.CHIP_DATA.chipInfo.name
-        _text_devies_aprom.text = "APROM："+_apromSize.toString() + "*1024"
-        _text_devies_data.text = "DataFlash："+_DataFlashSize.toString() + "*1024"
-
-        if(_DataFlashSize <= 0){
-            _checkbox_date_flash.isEnabled = false
-            _selectDataFlash.isEnabled = false
-        }else{
-            _checkbox_date_flash.isEnabled = true
-            _selectDataFlash.isEnabled = true
-        }
-
     }
 
     /**********************************************************************************************/
