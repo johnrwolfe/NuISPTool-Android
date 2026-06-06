@@ -2,6 +2,7 @@ package com.nuvoton.nuisptool_android.ISPTool
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.SystemClock
 import androidx.annotation.RequiresApi
 import com.nuvoton.nuisptool_android.Bluetooth.BluetoothLeCmdManager
 import com.nuvoton.nuisptool_android.Util.Log
@@ -245,14 +246,25 @@ object ISPManager {
         }
         Log.i("ISPManager", "CMD_UPDATE   CMD:"+cmd.toString()+"  size:"+sendByteArray.size+"  allPackNum:"+dataArray.size+1)
         var sendBuffer = ISPCommandTool.toUpdataBin_CMD(cmd, packetNumber , startAddress , sendByteArray.size , firstData , true)
-        this.write( sendBuffer)
-        var readBuffer = this.read()
-        Log.i("ISPManager", "UPDATE_BIN readBuffer=${
-            if (readBuffer != null)
-                ISPCommandTool.toPackNo(readBuffer)
-            else
-                "null"
-        }")
+        this.write(sendBuffer)        
+        var readBuffer = waitForExpectedPacket(packetNumber + 1u, timeoutMs = 20000)
+        if (readBuffer == null) {
+            Log.i(
+                "ISPManager",
+                "UPDATE_BIN timeout waiting for packet ${packetNumber + 1u}"
+            )
+            callback.invoke(null, -1)
+            return
+        }       
+        Log.i(
+            "ISPManager",
+            "UPDATE_BIN first block expected=${packetNumber + 1u} actual=${
+                if (readBuffer != null)
+                    ISPCommandTool.toPackNo(readBuffer)
+                else
+                    "null"
+            }"
+        )
         var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
 
         callback.invoke(readBuffer, 0) //5% 起跳
@@ -264,20 +276,30 @@ object ISPManager {
 
         for (i in 0..remainDataList.size-1){
             sendBuffer = ISPCommandTool.toUpdataBin_CMD(cmd, packetNumber , startAddress , sendByteArray.size , remainDataList[i] , false)
-            this.write( sendBuffer)
-            readBuffer = this.read()
-            Log.i("ISPManager", "UPDATE_BIN readBuffer=${
-                if (readBuffer != null)
-                    ISPCommandTool.toPackNo(readBuffer)
-                else
-                    "null"
-            }")
+            this.write(sendBuffer)        
+            readBuffer = waitForExpectedPacket(packetNumber + 1u, timeoutMs = 20000)   
+            if (readBuffer == null) {
+                Log.i(
+                    "ISPManager",
+                    "UPDATE_BIN timeout waiting for packet ${packetNumber + 1u}"
+                )
+                callback.invoke(null, -1)
+                return
+            }     
+            Log.i(
+                "ISPManager",
+                "UPDATE_BIN block=$i expected=${packetNumber + 1u} actual=${
+                    if (readBuffer != null)
+                        ISPCommandTool.toPackNo(readBuffer)
+                    else
+                        "null"
+                }"
+            )
             isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
             if(isChecksum != true){
                 callback.invoke(readBuffer, -1)
                 return
             }
-
             callback.invoke(readBuffer, (i.toDouble() / remainDataList.size * 100).toInt())
         }
         callback.invoke(readBuffer, 100)
@@ -941,44 +963,60 @@ object ISPManager {
     }
     
     // Since the device uses USB HID semantics, each response to a write
-    // command is left available for an infinite number of read commands.
-    // This function reads and discards packets that do not contain the expected
-    // packet number, returning the expected packet when it is made available by the device.
+    // command remains available for subsequent read commands until another
+    // write occurs. The first read after a write frequently returns the
+    // response to the previous command rather than the current command.
+    //
+    // This function continuously reads packets until either:
+    //   1. A packet with the expected packet number is received, or
+    //   2. The timeout expires.
+    //
+    // Packets with unexpected packet numbers are logged and discarded.
     private fun waitForExpectedPacket(
         expectedPackNo: UInt,
-        maxAttempts: Int = 20
-    ): ByteArray? {    
-        var index = 0    
-        while (index < maxAttempts) {    
-            val readBuffer = this.read()    
-            if (readBuffer == null) {    
-                Log.i(
-                    "ISPManager",
-                    "waitForExpectedPacket readBuffer == null"
-                )    
-                index++    
+        timeoutMs: Long = 2000
+    ): ByteArray? {
+    
+        val start = SystemClock.elapsedRealtime()
+    
+        while ((SystemClock.elapsedRealtime() - start) < timeoutMs) {
+    
+            val readBuffer = this.read()
+    
+            if (readBuffer == null) {
+                Log.i("ISPManager", "waitForExpectedPacket readBuffer == null")
                 continue
-            }    
-            val resultPackNo = ISPCommandTool.toPackNo(readBuffer)    
-            val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)    
+            }
+    
+            val resultPackNo = ISPCommandTool.toPackNo(readBuffer)
+            val resultChecksum = ISPCommandTool.toChecksumByReadBuffer(readBuffer)
+    
             Log.i(
                 "ISPManager",
                 "waitForExpectedPacket " +
                 "resultPackNo=$resultPackNo " +
                 "expectedPackNo=$expectedPackNo " +
                 "checksum=$resultChecksum"
-            )    
-            if (resultPackNo != expectedPackNo) {    
-                val readBufferString = HEXTool.toHexString(readBuffer)    
-                val display = HEXTool.toDisPlayString(readBufferString)    
-                Log.i("ISPManager", "Ignoring unexpected packet: $display")    
-                index++    
+            )
+    
+            if (resultPackNo != expectedPackNo) {
+                val readBufferString = HEXTool.toHexString(readBuffer)
+                val display = HEXTool.toDisPlayString(readBufferString)
+    
+                Log.i(
+                    "ISPManager",
+                    "Ignoring unexpected packet: $display"
+                )
                 continue
-            }    
+            }
+    
             return readBuffer
-        }    
+        }
+    
         Log.i(
-            "ISPManager", "waitForExpectedPacket timeout waiting for packNo=$expectedPackNo")    
+            "ISPManager",
+            "waitForExpectedPacket timeout waiting for packNo=$expectedPackNo"
+        )    
         return null
     }
     
