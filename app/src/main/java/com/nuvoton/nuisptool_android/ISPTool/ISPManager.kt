@@ -247,6 +247,12 @@ object ISPManager {
         var sendBuffer = ISPCommandTool.toUpdataBin_CMD(cmd, packetNumber , startAddress , sendByteArray.size , firstData , true)
         this.write( sendBuffer)
         var readBuffer = this.read()
+        Log.i("ISPManager", "UPDATE_BIN readBuffer=${
+            if (readBuffer != null)
+                ISPCommandTool.toPackNo(readBuffer)
+            else
+                "null"
+        }")
         var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
 
         callback.invoke(readBuffer, 0) //5% 起跳
@@ -260,6 +266,12 @@ object ISPManager {
             sendBuffer = ISPCommandTool.toUpdataBin_CMD(cmd, packetNumber , startAddress , sendByteArray.size , remainDataList[i] , false)
             this.write( sendBuffer)
             readBuffer = this.read()
+            Log.i("ISPManager", "UPDATE_BIN readBuffer=${
+                if (readBuffer != null)
+                    ISPCommandTool.toPackNo(readBuffer)
+                else
+                    "null"
+            }")
             isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
             if(isChecksum != true){
                 callback.invoke(readBuffer, -1)
@@ -303,7 +315,11 @@ object ISPManager {
 
         this.write( sendBuffer)
         val readBuffer = this.read()
-        var isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)
+        val isChecksum = this.isChecksum_PackNo(sendBuffer, readBuffer)        
+        Log.i(
+            "ISPManager",
+            "ERASE_ALL ackPackNo=${readBuffer?.let { ISPCommandTool.toPackNo(it) } ?: "null"} checksum=$isChecksum"
+        )
 
         callback.invoke(readBuffer, isChecksum)
     }
